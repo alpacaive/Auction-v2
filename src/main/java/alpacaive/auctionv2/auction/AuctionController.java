@@ -90,7 +90,7 @@ public class AuctionController {
 //			map.put("msg", "경매 마감");
 //		}
 //		return map;
-//	}  이젠 안 쓰는 코드 
+//	}  이젠 안 쓰는 코드  
 	
 	
 	@RequestMapping("/detail")
