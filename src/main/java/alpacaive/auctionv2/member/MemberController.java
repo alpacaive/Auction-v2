@@ -66,35 +66,29 @@ public class MemberController {
 				break;
 			}
 		}
-		ArrayList<AuctionDto> l2=aservice.getAll();
+		ArrayList<AuctionDto> l2=aservice.getAll(Auction.Type.BLIND);
 		ArrayList<String> list2= new ArrayList<>();
 		for(int i=0;i<l2.size();i++) {
-			if(l2.get(i).getType().equals(Auction.Type.BLIND) && l2.get(i).getStatus().equals("경매중")) {
-				list2.add(null);
-				map.addAttribute("BA"+(list2.size()),l2.get(i));
-			}
+			list2.add(null);
+			map.addAttribute("BA"+(list2.size()),l2.get(i));
 			if(list2.size()>5) {
 				break;
 			}
 		}
-		ArrayList<AuctionDto> l3=aservice.getAll();
+		ArrayList<AuctionDto> l3=aservice.getAll(Auction.Type.EVENT);
 		ArrayList<String> list3= new ArrayList<>();
 		for(int i=0;i<l2.size();i++) {
-			if(l2.get(i).getType().equals(Auction.Type.EVENT) && l3.get(i).getStatus().equals("경매중")) {
-				list3.add(null);
-				map.addAttribute("EA"+(list3.size()),l3.get(i));
-			}
+			list3.add(null);
+			map.addAttribute("EA"+(list3.size()),l3.get(i));
 			if(list3.size()>5) {
 				break;
 			}
 		}
-		ArrayList<AuctionDto> l4 = aservice.getAll();
+		ArrayList<AuctionDto> l4 = aservice.getlatestAuction();
 		ArrayList<String> list4= new ArrayList<>();
 		for(int i=0;i<l4.size();i++) {
-			if(l4.get(i).getStatus().equals("경매중")) {
-				list4.add(null);
-				map.addAttribute("LA"+(list4.size()),l4.get(i));
-			}
+			list4.add(null);
+			map.addAttribute("LA"+(list4.size()),l4.get(i));
 			if(list4.size()>5) {
 				break;
 			}
