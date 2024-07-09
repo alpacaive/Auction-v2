@@ -1,19 +1,27 @@
 package alpacaive.auctionv2.auction;
 
-import alpacaive.auctionv2.member.Member;
-import alpacaive.auctionv2.product.Product;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import alpacaive.auctionv2.bid.Bid;
+import alpacaive.auctionv2.bid.BidDao;
+import alpacaive.auctionv2.member.Member;
+import alpacaive.auctionv2.member.MemberDao;
+import alpacaive.auctionv2.product.Product;
 
 @Service
 public class AuctionService {
 
 	@Autowired
 	private AuctionDao dao;
+	@Autowired
+	private BidDao bdao;
+	@Autowired
+	private MemberDao mdao;
 
 	public void save(AuctionDto dto) {
 		dao.save(Auction.create(dto));
@@ -133,5 +141,51 @@ public class AuctionService {
 		return list;
 
 	}
+	public boolean stopAuction(int num) {
+		Auction a=dao.findById(num).orElse(null);
+		AuctionDto auction=AuctionDto.create(a);
+		if(a==null) {
+			return false;
+		}
+		auction.setStatus("경매마감");
+		switch(auction.getType()) {
+		case BLIND:
+			ArrayList<Bid> blist=bdao.findByParentOrderByNum(a);
+			for(Bid bid:blist) {
+				Member buyer=bid.getBuyer();
+				buyer.setPoint(buyer.getPoint()+bid.getPrice());
+				try {
+					mdao.save(buyer);
+				}catch(Exception e) {
+					return false;
+				}
+			}
+		case NORMAL:{
+			blist=bdao.findByParentOrderByNum(a);
+			Member buyer = blist.get(0).getBuyer();
+			buyer.setPoint(buyer.getPoint()+blist.get(0).getPrice());
+			try {
+				mdao.save(buyer);
+			}catch(Exception e) {
+				return false;
+			}
+		}
+		case EVENT:{
+			blist=bdao.findByParentOrderByNum(a);
+			for(Bid bid:blist) {
+				Member buyer=bid.getBuyer();
+				buyer.setPoint(buyer.getPoint()+bid.getPrice());
+				try {
+					mdao.save(buyer);
+				}catch(Exception e) {
+					return false;
+				}
+			}
+		}
+		}
+		return true;
+	}
+	
+	
 
 }
