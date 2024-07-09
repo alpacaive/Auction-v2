@@ -69,9 +69,14 @@ public class AuctionService {
 	// 전체목록
 		public ArrayList<AuctionDto> getlatestAuction() {
 			List<Auction> l = dao.findByStatusOrderByNumDesc("경매중");
+			int i=0;
 			ArrayList<AuctionDto> list = new ArrayList<>();
 			for (Auction a : l) {
+				if(i>2) {
+					break;
+				}
 				list.add(AuctionDto.create(a));
+				i++;
 			}
 			return list;
 		}
@@ -92,7 +97,11 @@ public class AuctionService {
 		List<Auction> l = dao.findByStatusOrderByBcntDesc(status);
 		ArrayList<AuctionDto> list = new ArrayList<>();
 		for (Auction a : l) {
-			list.add(AuctionDto.create(a));
+			AuctionDto dto=AuctionDto.create(a);
+			if(dto.getType().equals(Auction.Type.BLIND)) {
+				dto.setMax(dto.getMin());
+			}
+			list.add(dto);
 		}
 		return list;
 

@@ -54,45 +54,10 @@ public class MemberController {
 
 	@RequestMapping("/auth/login")
 	public String alogin(ModelMap map) {
-		ArrayList<AuctionDto> l=aservice.getAllByBids("경매중");
-		ArrayList<String> list= new ArrayList<>();
-		for(int i=0;i<l.size();i++) {
-			if(l.get(i).getType().equals(Auction.Type.BLIND)) {
-				l.get(i).setMax(l.get(i).getMin());
-			}
-			list.add(null);
-			map.addAttribute("HBA"+(list.size()),l.get(i));
-			if(list.size()>5) {
-				break;
-			}
-		}
-		ArrayList<AuctionDto> l2=aservice.getAll(Auction.Type.BLIND);
-		ArrayList<String> list2= new ArrayList<>();
-		for(int i=0;i<l2.size();i++) {
-			list2.add(null);
-			map.addAttribute("BA"+(list2.size()),l2.get(i));
-			if(list2.size()>5) {
-				break;
-			}
-		}
-		ArrayList<AuctionDto> l3=aservice.getAll(Auction.Type.EVENT);
-		ArrayList<String> list3= new ArrayList<>();
-		for(int i=0;i<l2.size();i++) {
-			list3.add(null);
-			map.addAttribute("EA"+(list3.size()),l3.get(i));
-			if(list3.size()>5) {
-				break;
-			}
-		}
-		ArrayList<AuctionDto> l4 = aservice.getlatestAuction();
-		ArrayList<String> list4= new ArrayList<>();
-		for(int i=0;i<l4.size();i++) {
-			list4.add(null);
-			map.addAttribute("LA"+(list4.size()),l4.get(i));
-			if(list4.size()>5) {
-				break;
-			}
-		}
+		map.addAttribute("HBA",aservice.getAllByBids("경매중"));
+		map.addAttribute("BA",aservice.getAll(Auction.Type.BLIND));
+		map.addAttribute("EA",aservice.getAll(Auction.Type.EVENT));
+		map.addAttribute("LA",aservice.getlatestAuction());
 		return "index";
 	}
 
