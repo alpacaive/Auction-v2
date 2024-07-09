@@ -65,17 +65,62 @@ public class AuctionService {
 		return list;
 
 	}
+	
+	// 전체목록
+		public ArrayList<AuctionDto> getlatestAuction() {
+			List<Auction> l = dao.findByStatusOrderByNumDesc("경매중");
+			int i=0;
+			ArrayList<AuctionDto> list = new ArrayList<>();
+			for (Auction a : l) {
+				if(i>2) {
+					break;
+				}
+				list.add(AuctionDto.create(a));
+				i++;
+			}
+			return list;
+		}
+	
+	
+	
+	public ArrayList<AuctionDto> getAll(Auction.Type type){
+		ArrayList<Auction> l=dao.findByStatusAndTypeOrderByNumDesc("경매중", type);
+		ArrayList<AuctionDto> list=new ArrayList<>();
+		for(Auction a :l) {
+			list.add(AuctionDto.create(a));
+		}
+		return list;
+	}
 
 	// 전체목록
 	public ArrayList<AuctionDto> getAllByBids(String status) {
 		List<Auction> l = dao.findByStatusOrderByBcntDesc(status);
 		ArrayList<AuctionDto> list = new ArrayList<>();
 		for (Auction a : l) {
-			list.add(AuctionDto.create(a));
+			AuctionDto dto=AuctionDto.create(a);
+			if(dto.getType().equals(Auction.Type.BLIND)) {
+				dto.setMax(dto.getMin());
+			}
+			list.add(dto);
 		}
 		return list;
 
 	}
+	
+	public ArrayList<AuctionDto> getByTypeIndex(Auction.Type type ){
+		ArrayList<AuctionDto>list=getAll();
+		ArrayList<AuctionDto> list2= new ArrayList<>();
+		for(int i=0;i<list.size();i++) {
+			if(list.get(i).getType().equals(type) && list.get(i).getStatus().equals("경매중")) {
+				list2.add(list.get(i));				
+				}
+				if(list2.size()>5) {
+					break;
+				}
+		}
+		return list2;
+	}
+	
 
 	// 판매자로 찾기
 	public ArrayList<AuctionDto> getBySeller(String seller) {
@@ -199,14 +244,13 @@ public class AuctionService {
 		if (buyer.getPoint() < b.getPrice()) {
 			return -1;
 		}
-		ArrayList<Bid> list = bdao.findByParentOrderByNumDesc(auction);
-		if (auction.getType().equals(Auction.Type.NORMAL) && list.size() > 0) {
+		Bid bid = bdao.findMaxValue(b.getParent());
+		if (auction.getType().equals(Auction.Type.NORMAL) && bid==null) {
 			if(b.getPrice()<adto.getMax()) {
 				return -2;
 			}
-			Bid pbid = list.get(0); // MAX//
-			int getPoint = pbid.getPrice();
-			Member pbuyer = mdao.findById(pbid.getBuyer().getId()).orElse(null);
+			int getPoint = bid.getPrice();
+			Member pbuyer = mdao.findById(bid.getBuyer().getId()).orElse(null);
 			pbuyer.setPoint(pbuyer.getPoint() + getPoint);
 			mdao.save(pbuyer);
 		}
