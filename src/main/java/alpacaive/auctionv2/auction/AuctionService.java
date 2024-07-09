@@ -2,13 +2,16 @@ package alpacaive.auctionv2.auction;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import alpacaive.auctionv2.bid.Bid;
+import alpacaive.auctionv2.bid.BidAddDto;
 import alpacaive.auctionv2.bid.BidDao;
+import alpacaive.auctionv2.bid.BidDto;
 import alpacaive.auctionv2.member.Member;
 import alpacaive.auctionv2.member.MemberDao;
 import alpacaive.auctionv2.product.Product;
@@ -64,18 +67,16 @@ public class AuctionService {
 	}
 
 	// 전체목록
-		public ArrayList<AuctionDto> getAllByBids(String status) {
-			List<Auction> l = dao.findByStatusOrderByBcntDesc(status);
-			ArrayList<AuctionDto> list = new ArrayList<>();
-			for (Auction a : l) {
-				list.add(AuctionDto.create(a));
-			}
-			return list;
-
+	public ArrayList<AuctionDto> getAllByBids(String status) {
+		List<Auction> l = dao.findByStatusOrderByBcntDesc(status);
+		ArrayList<AuctionDto> list = new ArrayList<>();
+		for (Auction a : l) {
+			list.add(AuctionDto.create(a));
 		}
+		return list;
 
-	
-	
+	}
+
 	// 판매자로 찾기
 	public ArrayList<AuctionDto> getBySeller(String seller) {
 		List<Auction> l = dao.findBySellerOrderByNumDesc(new Member(seller, "", "", "", null, 0, "", 0, ""));
@@ -141,43 +142,44 @@ public class AuctionService {
 		return list;
 
 	}
+
 	public boolean stopAuction(int num) {
-		Auction a=dao.findById(num).orElse(null);
-		AuctionDto auction=AuctionDto.create(a);
-		if(a==null) {
+		Auction a = dao.findById(num).orElse(null);
+		AuctionDto auction = AuctionDto.create(a);
+		if (a == null) {
 			return false;
 		}
 		auction.setStatus("경매마감");
-		switch(auction.getType()) {
+		switch (auction.getType()) {
 		case BLIND:
-			ArrayList<Bid> blist=bdao.findByParentOrderByNum(a);
-			for(Bid bid:blist) {
-				Member buyer=bid.getBuyer();
-				buyer.setPoint(buyer.getPoint()+bid.getPrice());
+			ArrayList<Bid> blist = bdao.findByParentOrderByNumDesc(a);
+			for (Bid bid : blist) {
+				Member buyer = bid.getBuyer();
+				buyer.setPoint(buyer.getPoint() + bid.getPrice());
 				try {
 					mdao.save(buyer);
-				}catch(Exception e) {
+				} catch (Exception e) {
 					return false;
 				}
 			}
-		case NORMAL:{
-			blist=bdao.findByParentOrderByNum(a);
+		case NORMAL: {
+			blist = bdao.findByParentOrderByNumDesc(a);
 			Member buyer = blist.get(0).getBuyer();
-			buyer.setPoint(buyer.getPoint()+blist.get(0).getPrice());
+			buyer.setPoint(buyer.getPoint() + blist.get(0).getPrice());
 			try {
 				mdao.save(buyer);
-			}catch(Exception e) {
+			} catch (Exception e) {
 				return false;
 			}
 		}
-		case EVENT:{
-			blist=bdao.findByParentOrderByNum(a);
-			for(Bid bid:blist) {
-				Member buyer=bid.getBuyer();
-				buyer.setPoint(buyer.getPoint()+bid.getPrice());
+		case EVENT: {
+			blist = bdao.findByParentOrderByNumDesc(a);
+			for (Bid bid : blist) {
+				Member buyer = bid.getBuyer();
+				buyer.setPoint(buyer.getPoint() + bid.getPrice());
 				try {
 					mdao.save(buyer);
-				}catch(Exception e) {
+				} catch (Exception e) {
 					return false;
 				}
 			}
@@ -185,7 +187,40 @@ public class AuctionService {
 		}
 		return true;
 	}
-	
-	
+
+	public int bid(BidAddDto b) {
+		Member buyer = mdao.findById(b.getBuyer()).orElse(null);
+		Auction auction = dao.findById(b.getParent()).orElse(null);
+		AuctionDto adto = AuctionDto.create(auction);
+		BidDto dto = new BidDto(b.getNum(), auction, buyer, b.getPrice(), new Date());
+		if (dto.getBidtime().after(auction.getEnd_time())) {
+			return 0;
+		}
+		if (buyer.getPoint() < b.getPrice()) {
+			return -1;
+		}
+		ArrayList<Bid> list = bdao.findByParentOrderByNumDesc(auction);
+		if (auction.getType().equals(Auction.Type.NORMAL) && list.size() > 0) {
+			if(b.getPrice()<adto.getMax()) {
+				return -2;
+			}
+			Bid pbid = list.get(0); // MAX//
+			int getPoint = pbid.getPrice();
+			Member pbuyer = mdao.findById(pbid.getBuyer().getId()).orElse(null);
+			pbuyer.setPoint(pbuyer.getPoint() + getPoint);
+			mdao.save(pbuyer);
+		}
+		buyer.setPoint(buyer.getPoint() - b.getPrice());
+		bdao.save(Bid.create(dto));
+		adto.setBcnt(auction.getBcnt() + 1);
+		if ((auction.getType().equals(Auction.Type.EVENT))) {
+			adto.setMax(auction.getMax() + b.getPrice());
+		} else {
+			adto.setMax(b.getPrice());
+		}
+		save(adto);
+		mdao.save(buyer);
+		return adto.getMax();
+	}
 
 }
