@@ -1,15 +1,9 @@
 package alpacaive.auctionv2.auction;
 
-import alpacaive.auctionv2.bid.BidAddDto;
-import alpacaive.auctionv2.bid.BidDto;
-import alpacaive.auctionv2.bid.BidService;
-import alpacaive.auctionv2.member.Member;
-import alpacaive.auctionv2.member.MemberDto;
-import alpacaive.auctionv2.member.MemberService;
-import alpacaive.auctionv2.product.ProductDto;
-import alpacaive.auctionv2.product.ProductService;
-import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -19,10 +13,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import alpacaive.auctionv2.bid.BidAddDto;
+import alpacaive.auctionv2.bid.BidService;
+import alpacaive.auctionv2.member.MemberService;
+import alpacaive.auctionv2.product.ProductDto;
+import alpacaive.auctionv2.product.ProductService;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 
 
 @Controller
@@ -70,73 +67,38 @@ public class AuctionController {
 	@SendTo("/sub/bid")
 	public Map send(BidAddDto b) throws InterruptedException {
 		Map map=new HashMap();
-		MemberDto buyer= mservice.getUser(b.getBuyer());
-		AuctionDto auction=aservice.get(b.getParent());
-		map.put("parent", b.getParent());
-		BidDto dto=new BidDto(b.getNum(),Auction.create(auction), Member.create(buyer),b.getPrice(),new Date());
-		if(dto.getBidtime().after(auction.getEnd_time())) {
-			map.put("msg","end");
-			return map;
+		int setMax=aservice.bid(b);
+		if(setMax>0) {
+		map.put("price", setMax);
+		}else if(setMax==-1){
+			map.put("msg", "need more point");
+		}else if(setMax==-2) {
+			map.put("msg", "current price is higher than you bid");
 		}
-		if(!(auction.getType().equals(Auction.Type.EVENT))) {
-			if(bservice.getByParent(b.getParent()).size()>0 && !(auction.getType().equals(Auction.Type.BLIND))) {
-				BidDto pbid=bservice.getByBuyer(auction.getNum());
-				int getPoint=pbid.getPrice();
-				System.out.println(getPoint);
-				MemberDto pbuyer= mservice.getUser(pbid.getBuyer().getId());
-				System.out.println(pbuyer.getId());
-				pbuyer.setPoint(pbuyer.getPoint()+getPoint);
-				System.out.println(pbuyer.getPoint());
-				mservice.edit(pbuyer);
-			}
-		}
-		buyer.setPoint(buyer.getPoint()-b.getPrice());
-		bservice.save(dto);
-		auction.setBcnt(auction.getBcnt()+1);
-		if((auction.getType().equals(Auction.Type.EVENT))) {
-			System.out.println(b.getPrice());
-			auction.setMax(auction.getMax()+b.getPrice());
-		}else {
-			auction.setMax(b.getPrice());
-		}
-		System.out.println(3);
-		aservice.save(auction);
-		mservice.edit(buyer);
-		String price=""+b.getPrice();
-		map.put("price", auction.getMax());
 		return map;
 	}
 	
-	@MessageMapping("/status")
-	@SendTo("/sub/bid")
-	public Map change(int parent) throws InterruptedException {
-		Map map=new HashMap();
-		AuctionDto auction=aservice.get(parent);
-		map.put("parent", parent);
-		if(auction.getEnd_time().before(new Date())) {
-			auction.setStatus("경매 마감");
-			aservice.save(auction);
-			map.put("msg", "경매 마감");
-		}
-		return map;
-	}
+//	@MessageMapping("/status")
+//	@SendTo("/sub/bid")
+//	public Map change(int parent) throws InterruptedException {
+//		Map map=new HashMap();
+//		AuctionDto auction=aservice.get(parent);
+//		map.put("parent", parent);
+//		if(auction.getEnd_time().before(new Date())) {
+//			auction.setStatus("경매 마감");
+//			aservice.save(auction);
+//			map.put("msg", "경매 마감");
+//		}
+//		return map;
+//	}  이젠 안 쓰는 코드  
 	
 	
 	@RequestMapping("/detail")
 	public String detail(int num,ModelMap map,HttpSession session) {
 		AuctionDto dto=aservice.get(num);
 		map.addAttribute("s", aservice.get(num));
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(dto.getStart_time());
-		String time=""+cal.get(Calendar.DAY_OF_MONTH);
-		time+="일 "+cal.get(Calendar.HOUR_OF_DAY);
-		time+="시"+cal.get(Calendar.MINUTE)+"분";
-		cal.setTime(dto.getEnd_time());
-		String time2=""+cal.get(Calendar.DAY_OF_MONTH);
-		time2+="일 "+cal.get(Calendar.HOUR_OF_DAY);
-		time2+="시"+cal.get(Calendar.MINUTE)+"분";
-		map.addAttribute("start_time", time);
-		map.addAttribute("end_time", time2);
+		map.addAttribute("start_time", dto.getTime(0));
+		map.addAttribute("end_time", dto.getTime(1));
 		String id=(String) session.getAttribute("loginId");
 		map.addAttribute("point",mservice.getUser(id).getPoint());
 		return "/auction/detail";
@@ -163,9 +125,12 @@ public class AuctionController {
 	}
 
 	@GetMapping("/stop")
-	public String stop(int num){
-		AuctionDto auction=aservice.get(num);
-		auction.setStatus("경매 마감");
+	public String stop(int num,HttpSession session){
+		boolean flag=aservice.stopAuction(num);
+		if(flag) {
+			return "redirect:/auth/report/list";
+		}
+		session.setAttribute("auctionStopMsg","error!");
 		return "redirect:/auth/report/list";
 	}
 

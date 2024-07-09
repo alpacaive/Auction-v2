@@ -12,10 +12,10 @@ import java.util.ArrayList;
 public interface BidDao extends JpaRepository<Bid, Integer> {
 
 	ArrayList<Bid>findByParentOrderByPrice(Auction parent);
-	ArrayList<Bid>findByParentOrderByNum(Auction parent);
-
+	ArrayList<Bid>findByParentOrderByNumDesc(Auction parent);
 	@Query("select b from Bid b where b.parent.num = :parent order by b.price desc")
 	ArrayList<Bid> findByBuyerByPrice(int parent);
-
+	@Query("SELECT MAX(b.price) FROM Bid b where b.parent.num= :parent")
+	Integer findMaxValue(int parent);
 	ArrayList<Bid> findByBuyerOrderByNumDesc(Member buyer);
 }

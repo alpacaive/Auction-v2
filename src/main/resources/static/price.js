@@ -62,6 +62,7 @@ function sendPrice() {
 	let type=$('type').val();
 	if(point < price){
 		alert("포인트가 모자랍니다.")
+		return // 1재앙
 	}
 	if(type == "NORMAL"){
 		if(isNaN(price) || price <= max ){
