@@ -36,7 +36,7 @@ public class SecurityConfiguration {
 				.requestMatchers("/index_member").hasRole("MEMBER")
 				.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()//forward 요청은 모두 허용
 				.requestMatchers("/auth/**").authenticated()  //url이 /auth/로 시작하면 인증을 요구
-				.requestMatchers("/","/all/**", "/join", "/error", "/login" , "/idcheck","/app.js","/favicon.ico","/price.js","/images/**", "/css/**", "/images/**", "/js/**", "/style.css","/notice.js","/webjars/**").permitAll()
+				.requestMatchers("/","/all/**", "/join", "/error", "/login", "/adjoin" , "/idcheck","/app.js","/favicon.ico","/price.js","/images/**", "/css/**", "/images/**", "/js/**", "/style.css","/notice.js","/webjars/**", "/event/**").permitAll()
 						.requestMatchers("/ws/**").permitAll()
 				)
 		.formLogin((login)->login

@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>alItem | 경매의 신</title>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
@@ -12,17 +11,52 @@
     <meta name="description" content="">
     <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Lato:wght@300;400;700&display=swap"
+          rel="stylesheet">
     <!-- script
     ================================================== -->
     <script src="/js/modernizr.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <title>alItem | 관리자 추가</title>
+    <style>
+        .container1 {
+            max-width: 1250px; /* 원하는 최대 너비 설정 */
+            max-height: 700px; /* 원하는 최대 높이 설정 */
+            margin: 0 auto; /* 가운데 정렬을 위해 사용 */
+        }
+        .file-inputs {
+            display: flex;
+            flex-direction: column;
+        }
 
+        .file-inputs input {
+            margin-bottom: 10px; /* 각 input 태그 사이에 간격 추가 */
+        }
 
+    </style>
+    <script>
+        const a = () => {
+            flag = false;
+            const req = new XMLHttpRequest();
+            let signup=document.getElementById('signup');
+            req.onload = () => {
+                let obj = JSON.parse(req.responseText);//req.responseText => {flag:true}
+                let txt = '중복된 아이디';
+                signup.disabled=true;
+                if (obj.flag) {
+                    txt = '사용가능 아이디';
+                    flag = true;
+                    signup.disabled=false;
+                }
+                document.getElementById('res').innerHTML = txt;
+            }
+            let id = document.getElementById('id').value;
+            req.open('get', '/idcheck?id=' + id);
+            req.send();
+        }
+    </script>
 </head>
 
 <body data-bs-spy="scroll" data-bs-target="#navbar" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" tabindex="0">
@@ -99,7 +133,7 @@
 
 <div class="search-popup">
     <div class="search-popup-container">
-
+        <input id="sessionId" type="hidden" th:value="${session.loginId}">
         <form role="search" method="post" class="search-form" action="/all/getbyprodname">
             <input type="search" id="search-form" class="search-field" placeholder="Type and press enter" value="" name="prodname" />
             <button type="submit" class="search-submit"><svg class="search"><use xlink:href="#search"></use></svg></button>
@@ -138,7 +172,7 @@
     <nav id="header-nav" class="navbar navbar-expand-lg px-3 mb-3">
         <div class="container-fluid">
 
-            <a class="navbar-brand">
+            <a class="navbar-brand" href="/">
                 <img src="/images/logo1.png" class="logo" style="height: 75px; width: 250px; margin-top: 3px; margin-bottom: 1px">
             </a>
 
@@ -180,22 +214,21 @@
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link me-4" href="/all/eventlist">Q&A</a>
+                            <a class="nav-link me-4" href="/all/qalist">Q&A</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link me-4" href="/auth/rooms">Chat</a>
-                        </li>
-                        <input id="sessionId" type="hidden" th:value="${session.loginId}">
-                        <li class="nav-item dropdown">
-                            <a id="bell" class="nav-link me-4 dropdown-toggle link-dark" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">🔔</a>
-                            <ul class="dropdown-menu" id="notificationList">
-                            </ul>
                         </li>
                         <li class="nav-item" th:if="${session.loginId == null}">
                             <a class="nav-link me-4" href="/auth/login">Login</a>
                         </li>
                         <li class="nav-item" th:if="${session.loginId != null}">
                             <a class="nav-link me-4" href="/auth/logout">Logout</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a id="bell" class="nav-link me-4 dropdown-toggle link-dark" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">🔔</a>
+                            <ul class="dropdown-menu" id="notificationList">
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <div class="user-items ps-5">
@@ -244,299 +277,67 @@
     </nav>
 </header>
 
-<!-- 배너 섹션 -->
 <section id="billboard" class="position-relative overflow-hidden bg-light-blue">
-    <div class="swiper main-swiper">
-        <div class="swiper-wrapper">
-            <!-- 배너1 -->
-            <div class="swiper-slide">
-                <div class="container">
-                    <div class="row d-flex align-items-center">
-                        <div class="col-md-6">
-                            <div class="banner-content">
-                                <h1 class="display-2 text-uppercase text-dark pb-5">Clothing</h1>
-                                <a href="/all/list" class="btn btn-medium btn-dark text-uppercase btn-rounded-none">Auction List</a>
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="image-holder">
-                                <img src="/images/clothing.jpg" alt="banner" style="width: 757px; height: 677px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- 배너2 -->
-            <div class="swiper-slide">
-                <div class="container">
-                    <div class="row d-flex flex-wrap align-items-center">
-                        <div class="col-md-6">
-                            <div class="banner-content">
-                                <h1 class="display-2 text-uppercase text-dark pb-5">Digital Devices</h1>
-                                <a href="/all/list" class="btn btn-medium btn-dark text-uppercase btn-rounded-none">Auction List</a>
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="image-holder">
-                                <img src="/images/Digiter.jpg" alt="banner" style="width: 757px; height: 677px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- 배너3 -->
-            <div class="swiper-slide">
-                <div class="container">
-                    <div class="row d-flex flex-wrap align-items-center">
-                        <div class="col-md-6">
-                            <div class="banner-content">
-                                <h1 class="display-2 text-uppercase text-dark pb-5">Antiques</h1>
-                                <a href="/all/list" class="btn btn-medium btn-dark text-uppercase btn-rounded-none">Auction List</a>
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="image-holder">
-                                <img src="/images/Antiques.jpg" alt="banner" style="width: 757px; height: 677px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- 배너4 -->
-            <div class="swiper-slide">
-                <div class="container">
-                    <div class="row d-flex flex-wrap align-items-center">
-                        <div class="col-md-6">
-                            <div class="banner-content">
-                                <h1 class="display-2 text-uppercase text-dark pb-5">Beauty & Accessories</h1>
-                                <a href="/all/list" class="btn btn-medium btn-dark text-uppercase btn-rounded-none">Auction List</a>
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="image-holder">
-                                <img src="/images/Beauty&Accessories.jpg" alt="banner" style="width: 757px; height: 677px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- 배너5 -->
-            <div class="swiper-slide">
-                <div class="container">
-                    <div class="row d-flex flex-wrap align-items-center">
-                        <div class="col-md-6">
-                            <div class="banner-content">
-                                <h1 class="display-2 text-uppercase text-dark pb-5">Sporting Goods</h1>
-                                <a href="/all/list" class="btn btn-medium btn-dark text-uppercase btn-rounded-none">Auction List</a>
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="image-holder">
-                                <img src="/images/Sportinggoods.jpg" alt="banner" style="width: 757px; height: 677px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- 배너6 -->
-            <div class="swiper-slide">
-                <div class="container">
-                    <div class="row d-flex flex-wrap align-items-center">
-                        <div class="col-md-6">
-                            <div class="banner-content">
-                                <h1 class="display-2 text-uppercase text-dark pb-5">Pet Supplies</h1>
-                                <a href="/all/list" class="btn btn-medium btn-dark text-uppercase btn-rounded-none">Auction List</a>
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="image-holder">
-                                <img src="/images/Pet.jpg" alt="banner" style="width: 757px; height: 677px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="swiper-icon swiper-arrow swiper-arrow-prev">
-        <svg class="chevron-left">
-            <use xlink:href="#chevron-left" />
-        </svg>
-    </div>
-    <div class="swiper-icon swiper-arrow swiper-arrow-next">
-        <svg class="chevron-right">
-            <use xlink:href="#chevron-right" />
-        </svg>
-    </div>
 </section>
-
-<!-- 배너 밑 섹션 -->
 <section id="company-services" class="padding-large">
 </section>
 
-<!-- high-bidding -->
-<section id="mobile-products" class="product-store position-relative padding-large no-padding-top">
-    <div class="container">
-        <div class="row">
-            <!-- 제목이랑 shop가기 -->
-            <div class="display-header d-flex justify-content-between pb-3">
-                <h2 class="display-7 text-dark text-uppercase">High Bidding Auction</h2>
-                <div class="btn-right">
-                    <a href="/all/list" class="btn btn-medium btn-normal text-uppercase">Go to Auction</a>
-                </div>
-            </div>
 
-            <div class="swiper product-swiper">
-                <div class="swiper-wrapper">
-                 <!-- 1번째 사진 -->
-                    <div class="swiper-slide" th:each="HBA:${HBA}">
-                        <div class="product-card position-relative" >
-                            <div class="image-holder">
-                                <img th:src="@{/all/read-img(img=${HBA.product.img1})}" alt="product-item" class="img-fluid" style="height: 300px; width: 300px">
-                            </div>
-                            <!-- 사진에 마우스 올리면 장바구니로 이동 버튼 뜨는 부분 -->
-                            <div class="cart-concern position-absolute">
-                                <div class="cart-button d-flex">
-                                    <a  th:onclick="'addscrap(\'' + ${HBA.num} + '\')'" class="btn btn-medium btn-black">Add to Scrap<svg class="cart-outline"><use xlink:href="#cart-outline"></use></svg></a>
-                                </div>
-                            </div>
-                            <!-- 사진 밑 제품명 -->
-                            <div class="card-detail d-flex justify-content-between align-items-baseline pt-3">
-                                <h3 class="card-title text-uppercase">
-                                    <a th:href="@{/auth/auction/detail(num=${HBA.num})}" th:text="${HBA.title}"></a>
-                                </h3>
-                                <span class="item-price text-primary" th:text="${HBA.max + '원'}"></span>
-                            </div>
-
-                        </div>
-                    </div>  
-                </div>
-            </div>
+<div class="container1">
+    <div class="row1">
+        <div class="display-header d-flex justify-content-between pb-3">
+            <h2 class="display-7 text-dark text-uppercase" style="margin-bottom: 25px">관리자 추가</h2>
         </div>
+        <hr style="all: unset; display: block; width: 100%; height: 2px; background-color: #000000; border: none; padding: 0; margin-bottom: 41px">
     </div>
-    <!-- 페이징 작업 같음, 점점 두개 중앙으로 지정 -->
-    <div class="swiper-pagination position-absolute text-center"></div>
-</section>
 
-<!-- lastest posts, 최근 게시물 -->
+    <div>
+        <form action="/auth/member/join" method="post">
+
+            <div class="d-flex align-items-center mb-3" style="padding-bottom: 33px; margin-bottom: 0">
+                <h4 style="flex:1; margin-bottom: 0; font-weight: lighter">ID</h4>
+                <div style="flex: 1; display: flex; align-items: center;">
+                    <input type="text" name="id" id="id" style="width: 45%; height: 40px; border: 1px solid #000000; border-radius: 10px; box-sizing: border-box; padding-left: 10px; margin-right: 10px;">
+                    <button type="button" onclick="a()" style="border-radius: 20px; border: none; outline: none; font-size: 12px; font-weight: bold; padding: 10px 20px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: transform 80ms ease-in;">중복체크</button>
+                </div>
+            </div>
+            <hr style="all: unset; display: block; width: 100%; height: 1px; background-color: #000000; border: none; padding: 0; margin-bottom: 41px">
+
+            <div class="d-flex align-items-center mb-3" style="padding-bottom: 33px; margin-bottom: 0">
+                <h4 style="flex:1; margin-bottom: 0; font-weight: lighter">PWD</h4>
+                <div style="flex: 1">
+                    <input type="password" name="pwd" id="pwd" style="width: 60%; height: 40px; border: 1px solid #000000; border-radius: 10px; box-sizing: border-box; padding-left: 10px">
+                </div>
+            </div>
+            <hr style="all: unset; display: block; width: 100%; height: 1px; background-color: #000000; border: none; padding: 0; margin-bottom: 41px">
+
+            <div class="d-flex align-items-center mb-3" style="padding-bottom: 33px; margin-bottom: 0">
+                <h4 style="flex:1; margin-bottom: 0; font-weight: lighter">Name</h4>
+                <div style="flex: 1">
+                    <input type="text" name="name" id="name" style="width: 60%; height: 40px; border: 1px solid #000000; border-radius: 10px; box-sizing: border-box; padding-left: 10px">
+                </div>
+            </div>
+            <hr style="all: unset; display: block; width: 100%; height: 1px; background-color: #000000; border: none; padding: 0; margin-bottom: 41px">
+
+            <div class="d-flex align-items-center mb-3" style="padding-bottom: 33px; margin-bottom: 0">
+                <h4 style="flex:1; margin-bottom: 0; font-weight: lighter">Email</h4>
+                <div style="flex: 1">
+                    <input type="text" name="email" id="email" style="width: 60%; height: 40px; border: 1px solid #000000; border-radius: 10px; box-sizing: border-box; padding-left: 10px">
+                </div>
+            </div>
+            <hr style="all: unset; display: block; width: 100%; height: 1px; background-color: #000000; border: none; padding: 0; margin-bottom: 41px">
+
+            <input type="hidden" name="type" value="member">
+            <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                <input type="submit" value="등록" style="padding: 10px 30px; background-color: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px;">
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
 <section id="latest-blog" class="padding-large">
-    <div class="container">
-        <div class="row">
-            <div class="display-header d-flex justify-content-between pb-3">
-                <h2 class="display-7 text-dark text-uppercase">Latest Auction</h2>
-                <div class="btn-right">
-                    <a href="/all/list" class="btn btn-medium btn-normal text-uppercase">Go to Auction</a>
-                </div>
-            </div>
-            <div class="post-grid d-flex flex-wrap justify-content-between" >
-                <div class="col-lg-4 col-sm-12" th:each="la:${LA}">
-                    <div class="card border-none me-3">
-                        <div class="card-image">
-                            <img th:src="@{/all/read-img(img=${la.product.img1})}" alt="product-item" class="img-fluid custom-img" style="height: 300px; width: 414px">
-                        </div>
-                    </div>
-                    <div class="card-body text-uppercase">
-                        <div class="card-meta text-muted">
-                            <span class="meta-date" th:text="${'시작 시간 : ' + la.start_time}"></span><br>
-                            <span class="meta-category" th:text="${'카테고리 : ' + la.product.categories}">- 카테고리</span>
-                        </div>
-                        <h3 class="card-title">
-                            <a th:href="@{/auth/auction/detail(num=${la.num})}" th:text="${la.title}"></a>
-                        </h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-
-<section id="mobile-products1" class="product-store position-relative padding-large no-padding-top">
-    <div class="container">
-        <div class="row">
-            <!-- 제목이랑 shop가기 -->
-            <div class="display-header d-flex justify-content-between pb-3">
-                <h2 class="display-7 text-dark text-uppercase">Blind Acution</h2>
-                <div class="btn-right">
-                    <a href="/all/list?atype=BLIND" class="btn btn-medium btn-normal text-uppercase">Go to Auction</a>
-                </div>
-            </div>
-
-            <div class="swiper product-swiper1">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide" th:each="BA:${BA}">
-                        <div class="product-card position-relative" >
-                            <!-- 1번째 사진 -->
-                            <div class="image-holder">
-                                <img th:src="@{/all/read-img(img=${BA.product.img1})}"  alt="product-item" class="img-fluid" style="width: 300px; height: 300px">
-                            </div>
-                            <!-- 사진에 마우스 올리면 장바구니로 이동 버튼 뜨는 부분 -->
-                            <div class="cart-concern position-absolute">
-                                <div class="cart-button d-flex">
-                                    <a  class="btn btn-medium btn-black" th:onclick="'addscrap(\'' + ${BA.num} + '\')'" >Add to Scrap<svg class="cart-outline"><use xlink:href="#cart-outline"></use></svg></a>
-                                </div>
-                            </div>
-                            <!-- 사진 밑 제품명 -->
-                            <div class="card-detail d-flex justify-content-between align-items-baseline pt-3">
-                                <h3 class="card-title text-uppercase">
-                                    <a th:href="@{/auth/auction/detail(num=${BA.num})}" th:text="${BA.title}"></a>
-                                </h3>
-                                <span class="item-price text-primary" th:text="${BA.max + '원'}"></span>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 페이징 작업 같음, 점점 두개 중앙으로 지정 -->
-    <div class="swiper-pagination position-absolute text-center"></div>
-</section>
-
-<section id="mobile-products2" class="product-store position-relative padding-large no-padding-top">
-    <div class="container">
-        <div class="row">
-            <!-- 제목이랑 shop가기 -->
-            <div class="display-header d-flex justify-content-between pb-3">
-                <h2 class="display-7 text-dark text-uppercase">Event Auction</h2>
-                <div class="btn-right">
-                    <a href="/all/list?atype=EVENT" class="btn btn-medium btn-normal text-uppercase">Go to Auction</a>
-                </div>
-            </div>
-
-            <div class="swiper product-swiper2">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide" th:each="EA:${EA}">
-                        <div class="product-card position-relative" >
-                            <!-- 1번째 사진 -->
-                            <div class="image-holder">
-                                <img th:src="@{/all/read-img(img=${EA.product.img1})}" alt="product-item" class="img-fluid" style="width: 300px; height: 300px">
-                            </div>
-                            <!-- 사진에 마우스 올리면 장바구니로 이동 버튼 뜨는 부분 -->
-                            <div class="cart-concern position-absolute">
-                                <div class="cart-button d-flex">
-                                    <a  class="btn btn-medium btn-black" th:onclick="'addscrap(\'' + ${EA.num} + '\')'">Add to Scrap<svg class="cart-outline"><use xlink:href="#cart-outline"></use></svg></a>
-                                </div>
-                            </div>
-                            <!-- 사진 밑 제품명 -->
-                            <div class="card-detail d-flex justify-content-between align-items-baseline pt-3">
-                                <h3 class="card-title text-uppercase">
-                                    <a th:href="@{/auth/auction/detail(num=${EA.num})}" th:text="${EA.title}"></a>
-                                </h3>
-                                <span class="item-price text-primary" th:text="${EA.max + '원'}"></span>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 페이징 작업 같음, 점점 두개 중앙으로 지정 -->
-    <div class="swiper-pagination position-absolute text-center"></div>
 </section>
 <!-- 제일 아래 섹션 -->
 <footer id="footer" class="overflow-hidden">
@@ -680,97 +481,11 @@
         </div>
     </div>
 </div>
-<title>Notifications</title>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    let stompClient = null;
-    let sessionId = document.getElementById("sessionId").value
-    function connect() {
-        let socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
-            console.log("frame:"+frame)
-            stompClient.subscribe("/sub/notice/list/"+sessionId,function(message) {
-                // displayNotifications(message)
-                // console.log("Wlahrl")
-                // console.log("sessionId : "+sessionId)
-                $.ajax({
-                    url: '/auth/notifications', // 서버의 요청 처리 주소
-                    type: 'GET',
-                    data:{member:sessionId},
-                    success: function(data) {
-                        console.log(data)
-                        displayNotifications(data); // 성공적으로 데이터를 받으면 화면에 표시
-                    },
-                    error: function() {
-                        alert('Failed to fetch notifications.');
-                    }
-                });
-            });
-            console.log('Connected: ' + frame);
-        });
-    }
-    $(document).ready(function() {
-        $('#bell').click(function() {
-            $.ajax({
-                url: '/auth/notifications', // 서버의 요청 처리 주소
-                type: 'GET',
-                data:{member:sessionId},
-                success: function(data) {
-                    console.log(data)
-                    displayNotifications(data); // 성공적으로 데이터를 받으면 화면에 표시
-                },
-                error: function() {
-                    alert('Failed to fetch notifications.');
-                }
-            });
-        });
-
-    });
-    function addscrap(val){
-    	let num=parseInt(val)
-      	 $.ajax({
-               url: '/auth/scrap/scrap', // 서버의 요청 처리 주소
-               type: 'POST',
-               contentType: 'application/x-www-form-urlencoded',
-               dataType: 'json',
-               data:{
-           		member:sessionId,
-          	 	auction:num	
-        	},
-               success: function(response) {
-            	   if(response.state==1){
-                   	alert("추가되었습니다");
-            	   }else{
-            		alert("삭제되었습니다");
-            	   }
-               },
-               error: function() {
-                   alert('스크랩실패; 로그인 필요 ');
-               }
-           });
-      }
-    function displayNotifications(notifications) {
-        let notificationList = $('#notificationList');
-        notificationList.empty(); // 기존 목록 지우기
-
-        $.each(notifications, function(index, notification) {
-            let listItem = $('<li class="list-group-item"></li>');
-            listItem.append('<h5 class="mb-1">' + notification.title + '</h5>');
-            listItem.append('<p class="mb-1">' + notification.content + '</p>');
-            listItem.append('<small>' + notification.name + ' - ' + notification.time + '</small>');
-
-            notificationList.append(listItem);
-        });
-    }
-    if (sessionId!==null){
-        console.log("rlahWl")
-        connect()
-        console.log(sessionId)
-
-    }
-</script>
-<script src="/js/jquery-1.11.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="/notice.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
 <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="/js/plugins.js"></script>

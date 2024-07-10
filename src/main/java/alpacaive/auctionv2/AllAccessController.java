@@ -3,9 +3,7 @@ package alpacaive.auctionv2;
 import alpacaive.auctionv2.auction.Auction;
 import alpacaive.auctionv2.auction.AuctionDto;
 import alpacaive.auctionv2.auction.AuctionService;
-import alpacaive.auctionv2.dataroom.DataroomDto;
-import alpacaive.auctionv2.dataroom.DataroomService;
-import alpacaive.auctionv2.dataroom.ReplyService;
+import alpacaive.auctionv2.event.EventService;
 import alpacaive.auctionv2.product.Product;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +28,10 @@ import java.util.Map;
 public class AllAccessController {
 
 	@Autowired
-	private DataroomService service;
-	@Autowired
-	private ReplyService rservice;
+	private AuctionService aservice;
 
 	@Autowired
-	private AuctionService aservice;
+	private EventService eservice;
 
 	@Value("${spring.servlet.multipart.location}")
 	private String path;
@@ -131,14 +127,9 @@ public class AllAccessController {
 		return result;
 	}
 
-	@GetMapping("/qalist")
-	public String qalist(ModelMap map, @RequestParam(value = "type", defaultValue = "0")int type) {
-		ArrayList<DataroomDto> list=service.findAll();
-		for(DataroomDto dto:list){
-			dto.setReplies(rservice.findAll(dto));
-		}
-		map.addAttribute("list", list);
-		map.addAttribute("type", type);
-		return "dataroom/list";
+	@GetMapping("/eventlist")
+	public String list(ModelMap map) {
+		map.addAttribute("list", eservice.getAll());
+		return "event/list";
 	}
 }
