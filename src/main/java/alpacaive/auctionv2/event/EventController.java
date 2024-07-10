@@ -32,20 +32,9 @@ public class EventController {
         return "event/edit";
     }
 
-    @PostMapping("/edit")
-    public String edit(EventDto dto) {
-        EventDto e = eservice.getEvent(dto.getNum());
-        e.setWdate(dto.getWdate());
-        e.setImg(dto.getImg());
-        e.setTitle(dto.getTitle());
-        e.setContent(dto.getContent());
-        eservice.save(e);
-        return "redirect:/event/list";
-    }
-
-    @RequestMapping("/del")
-    public String del(int num) {
-        eservice.delete(num);
+    @RequestMapping("/close")
+    public String close(int num) {
+        eservice.update(num);
         return "redirect:/event/list";
     }
 

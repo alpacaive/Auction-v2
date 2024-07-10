@@ -19,18 +19,19 @@ public class EventService {
 
     public EventDto save(EventDto dto) {
         Event e = dao.save(Event.create(dto));
+        EventDto vo=EventDto.create(e);
         if(!dto.getF().isEmpty()) {
             String oname = dto.getF().getOriginalFilename();
             String img = e.getNum() + oname;
             File f = new File(path + img);
             try {
                 dto.getF().transferTo(f);
-                e.setImg(f.getName());
+                vo.setImg(f.getName());
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         }
-        dao.save(e);
+        dao.save(Event.create(vo));
 
         return EventDto.create(e);
     }
@@ -40,9 +41,13 @@ public class EventService {
     }
 
     public ArrayList<EventDto> getAll() {
-        List<Event> l = dao.findAllByOrderByNumDesc();
+        List<Event> l = dao.findByStatusOrderByNumDesc("진행중"); // 진행중
         ArrayList<EventDto> list = new ArrayList<>();
         for (Event e : l) {
+            list.add(EventDto.create(e));
+        }
+        List<Event> l2 = dao.findByStatusOrderByNumDesc("마감"); // 마감
+        for (Event e : l2) {
             list.add(EventDto.create(e));
         }
         return list;
@@ -54,6 +59,13 @@ public class EventService {
             return null;
         }
         return EventDto.create(e);
+    }
+
+    public void update(int num) {
+        Event e = dao.findById(num).orElse(null);
+        EventDto dto=EventDto.create(e);
+        dto.setStatus("마감");
+        save(dto);
     }
 
 

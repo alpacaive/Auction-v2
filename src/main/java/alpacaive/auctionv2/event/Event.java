@@ -7,7 +7,6 @@ import java.util.Date;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 public class Event {
 
@@ -16,33 +15,31 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_event")
     private int num;
 
-    private Date wdate;
     private String img;
     private String title;
-    private String content;
-
-    @PrePersist
-    public void setDate() {
-        wdate = new Date();
-    }
+    private String close;
+    private String status;
+    private String cnum;
 
     public static Event create(EventDto dto) {
         return Event.builder()
                 .num(dto.getNum())
-                .wdate(dto.getWdate())
                 .img(dto.getImg())
                 .title(dto.getTitle())
-                .content(dto.getContent())
+                .close(dto.getClose())
+                .status(dto.getStatus())
+                .cnum(dto.getCnum())
                 .build();
     }
 
     @Builder
-    public Event(int num, Date wdate, String img, String title, String content) {
+    public Event(int num, String img, String title, String close, String status, String cnum) {
         this.num = num;
-        this.wdate = wdate;
         this.img = img;
         this.title = title;
-        this.content = content;
+        this.close = close;
+        this.status = status;
+        this.cnum = cnum;
     }
 
 }
