@@ -11,29 +11,32 @@ import java.util.Date;
 public class EventDto {
 
     private int num;
-    private Date wdate;
     private String img;
     private String title;
-    private String content;
+    private String close;
+    private String status;
+    private String cnum;
     private MultipartFile f;
 
     public static EventDto create(Event event) {
         return EventDto.builder()
                 .num(event.getNum())
-                .wdate(event.getWdate())
                 .img(event.getImg())
                 .title(event.getTitle())
-                .content(event.getContent())
+                .close(event.getClose())
+                .status(event.getStatus())
+                .cnum(event.getCnum())
                 .build();
     }
 
     @Builder
-    public EventDto(int num, Date wdate, String img, String title, String content, MultipartFile f) {
+    public EventDto(int num, String img, String title, String close, String status, String cnum, MultipartFile f) {
         this.num = num;
-        this.wdate = wdate;
         this.img = img;
         this.title = title;
-        this.content = content;
+        this.close = close;
+        this.status = status;
+        this.cnum = cnum;
         this.f = f;
     }
 

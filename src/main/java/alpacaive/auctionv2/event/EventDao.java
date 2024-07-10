@@ -9,5 +9,5 @@ import java.util.ArrayList;
 public interface EventDao extends JpaRepository<Event, Integer> {
 
     // 전체목록 최신순으로 불러오기
-    ArrayList<Event> findAllByOrderByNumDesc();
+    ArrayList<Event> findByStatusOrderByNumDesc(String status);
 }
