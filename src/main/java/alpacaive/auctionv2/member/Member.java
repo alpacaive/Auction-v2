@@ -1,13 +1,14 @@
 package alpacaive.auctionv2.member;
 
 import alpacaive.auctionv2.card.Card;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
+import alpacaive.auctionv2.coupon.Coupon;
+import alpacaive.auctionv2.coupon.MemberCoupon;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import java.util.List;
 
 
 @Entity
@@ -35,7 +36,9 @@ public class Member {
     private int exp;
 
     private String type;
-
+	@OneToMany(mappedBy = "member")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private List<MemberCoupon> member;
 	@PrePersist
 	public void prePersist() {
 		if (this.rank == null) {
@@ -70,7 +73,10 @@ public class Member {
 		this.exp = exp;
 		this.type = type;
 	}
-    
+    public void addMemberCoupon(MemberCoupon coupon) {
+		member.add(coupon);
+		coupon.setMember(this);
+	}
 	public Member(String id) {
 		this.id=id;
 	}
