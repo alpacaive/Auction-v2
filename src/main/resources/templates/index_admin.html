@@ -378,11 +378,17 @@
             <h1 style="margin-top: 100px; margin-bottom: 15px">My Page</h1>
             <button type="submit" class="custom-button">회원 관리</button>
         </form>
+        <form action="/adjoin" method="get">
+            <button type="submit" class="custom-button">관리자 추가</button>
+        </form>
         <form action="/auth/auction/list" method="get">
             <button type="submit" class="custom-button">경매 관리</button>
         </form>
         <form th:action="@{/auth/report/list}" method="get">
             <button type="submit" class="custom-button">신고 관리</button>
+        </form>
+        <form th:action="@{/auth/event/add}" method="get">
+            <button type="submit" class="custom-button">이벤트 등록</button>
         </form>
         <div style="text-align: center;">
         

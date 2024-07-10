@@ -33,6 +33,11 @@ public class MemberController {
 	private AuctionService aservice;
 
 
+	@GetMapping("/adjoin")
+	public String adjoinForm() {
+		return "member/adjoin";
+	}
+
 	@GetMapping("/join")
 	public String joinForm() {
 		return "member/login";
