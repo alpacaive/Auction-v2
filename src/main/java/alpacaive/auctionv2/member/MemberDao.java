@@ -8,4 +8,5 @@ import java.util.ArrayList;
 @Repository
 public interface MemberDao extends JpaRepository<Member, String> {
    ArrayList<Member> findByType(String type);
+   ArrayList<Member> findAllByOrderByExpDesc();
 }

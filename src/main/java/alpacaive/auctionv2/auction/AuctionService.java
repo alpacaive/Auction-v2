@@ -14,6 +14,7 @@ import alpacaive.auctionv2.bid.BidDao;
 import alpacaive.auctionv2.bid.BidDto;
 import alpacaive.auctionv2.member.Member;
 import alpacaive.auctionv2.member.MemberDao;
+import alpacaive.auctionv2.member.MemberDto;
 import alpacaive.auctionv2.product.Product;
 
 @Service
@@ -264,6 +265,10 @@ public class AuctionService {
 		}
 		save(adto);
 		mdao.save(buyer);
+		//입찰시 판매자에게 10exp 부여
+		MemberDto seller=MemberDto.create(adto.getSeller());
+		seller.setExp(seller.getExp()+10);
+		mdao.save(Member.create(seller));
 		return adto.getMax();
 	}
 

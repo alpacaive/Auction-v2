@@ -36,9 +36,9 @@ public class Member {
     private int exp;
 
     private String type;
-	@OneToMany(mappedBy = "member")
-	@OnDelete(action = OnDeleteAction.CASCADE)
-	private List<MemberCoupon> member;
+//	@OneToMany(mappedBy = "member")
+//	@OnDelete(action = OnDeleteAction.CASCADE)
+//	private List<MemberCoupon> member;
 	@PrePersist
 	public void prePersist() {
 		if (this.rank == null) {
@@ -73,10 +73,10 @@ public class Member {
 		this.exp = exp;
 		this.type = type;
 	}
-    public void addMemberCoupon(MemberCoupon coupon) {
-		member.add(coupon);
-		coupon.setMember(this);
-	}
+//    public void addMemberCoupon(MemberCoupon coupon) {
+//		member.add(coupon);
+//		coupon.setMember(this);
+//	}
 	public Member(String id) {
 		this.id=id;
 	}

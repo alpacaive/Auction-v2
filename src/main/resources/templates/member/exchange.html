@@ -304,14 +304,14 @@
 <div class="container1">
     <div class="row1">
         <div class="display-header d-flex justify-content-between pb-3">
-            <h2 class="display-7 text-dark text-uppercase" style="margin-bottom: 25px">포인트 충전</h2>
+            <h2 class="display-7 text-dark text-uppercase" style="margin-bottom: 25px">포인트 환전</h2>
         </div>
         <hr style="all: unset; display: block; width: 100%; height: 2px; background-color: #000000; border: none; padding: 0; margin-bottom: 41px">
     </div>
     <div>
         <body>
         <div class="container3">
-            <form id="point-form" action="/auth/member/point" method="post" onsubmit="return confirmPayment(event)">
+            <form id="point-form" action="/auth/member/exchange" method="post" onsubmit="return confirmPayment(event)">
                 <table>
                     <tr>
                         <th>항목</th>
@@ -330,18 +330,11 @@
                         <td>보유 Point</td>
                         <td id="member-point" th:text="${member.point}"></td>
                     </tr>
-                    <tr>
-                        <td>다음 등급까지 필요한 포인트</td>
-                        <td th:if="${member.rank.equals('Bronze')}" th:text="100000-${member.exp}"></td>
-                        <td th:if="${member.rank.equals('Silver')}" th:text="400000-${member.exp}"></td>
-                        <td th:if="${member.rank.equals('Gold')}" th:text="1400000-${member.exp}"></td>
-                        <td th:if="${member.rank.equals('Diamond')}">최고 등급입니다</td>
-                    </tr>
                 </table>
 
                 <div class="form-group">
                     <br/>
-                    <label for="point-select">충전할 포인트:</label>
+                    <label for="point-select">환전할 포인트:</label>
                     <select id="point-select" name="point" onchange="toggleCustomInput()">
                         <option value="10000">1만</option>
                         <option value="50000">5만</option>
@@ -349,15 +342,10 @@
                         <option value="300000">30만</option>
                         <option value="500000">50만</option>
                         <option value="1000000">100만</option>
-                        <option value="custom">기타</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="custom-point">직접 입력 포인트:</label>
-                    <input type="text" id="custom-point" name="customPoint" placeholder="포인트 입력">
-                </div>
-                <div class="form-group">
-                    <button type="submit">충전하기</button>
+                    <button type="submit">환전하기</button>
                 </div>
             </form>
         </div>

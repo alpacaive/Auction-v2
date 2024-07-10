@@ -394,13 +394,13 @@
             <input type="hidden" name="buyer" th:value="${session.loginId}" />
             <button type="submit" class="custom-button">참여한 경매 목록</button>
         </form>
-        <form th:action="@{/auth/member/card}" method="get">
-            <input type="hidden" name="id" th:value="${session.loginId}" />
-            <button type="submit" class="custom-button">카드 등록</button>
-        </form>
         <form th:action="@{/auth/member/point}" method="get">
             <input type="hidden" name="id" th:value="${session.loginId}" />
             <button type="submit" class="custom-button">포인트 충전</button>
+        </form>
+        <form th:action="@{/auth/member/exchange}" method="get">
+            <input type="hidden" name="id" th:value="${session.loginId}" />
+            <button type="submit" class="custom-button">포인트 환전</button>
         </form>
         <form th:action="@{/auth/rooms}" method="get">
             <button type="submit" class="custom-button">채팅방</button>

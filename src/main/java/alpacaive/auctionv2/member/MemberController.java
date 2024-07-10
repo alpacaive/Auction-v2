@@ -1,13 +1,8 @@
 package alpacaive.auctionv2.member;
 
-import alpacaive.auctionv2.auction.Auction;
-import alpacaive.auctionv2.auction.AuctionDto;
-import alpacaive.auctionv2.auction.AuctionService;
-import alpacaive.auctionv2.card.Card;
-import alpacaive.auctionv2.card.CardDto;
-import alpacaive.auctionv2.card.CardService;
-import jakarta.servlet.http.HttpSession;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -17,9 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import alpacaive.auctionv2.auction.Auction;
+import alpacaive.auctionv2.auction.AuctionService;
+import alpacaive.auctionv2.card.Card;
+import alpacaive.auctionv2.card.CardDto;
+import alpacaive.auctionv2.card.CardService;
+import alpacaive.auctionv2.coupon.Coupon;
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
@@ -180,6 +180,16 @@ public class MemberController {
 		}
 		return "member/point";
 	}
+	@GetMapping("/auth/member/exchange")
+	public String exchangeform(String id, ModelMap map) {
+		MemberDto m = service.getUser(id);
+		map.addAttribute("member", m);
+		if(m.getCardnum() == null) {
+			map.addAttribute("flag",true);
+			return "member/card";
+		}
+		return "member/exchange";
+	}
 
 	@PostMapping("/auth/member/point")
 	public String point(String id, String point, String customPoint, ModelMap map) {
@@ -217,5 +227,13 @@ public class MemberController {
 		}
 		map.put("flag", flag);
 		return map;
+	}
+	@PostMapping("/auth/member/exchange")
+	public String exchange(HttpSession session,int point,ModelMap map) {
+//		if(coupon!=null) {
+//			//쿠폰 적용 코드
+//		}
+		service.exchage((String)session.getAttribute("loginId"), point);
+		return "index_member";
 	}
 }

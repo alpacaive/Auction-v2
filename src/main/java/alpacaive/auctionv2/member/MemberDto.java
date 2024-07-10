@@ -48,4 +48,16 @@ public class MemberDto {
    		this.exp = exp;
    		this.type = type;
    	}
+    public int getFee(int point) {
+		switch(rank) {
+		case "Bronze":
+			return (int)(point*0.9);
+		case "Sliver":
+			return (int) (point*0.93);
+		case "Gold":
+			return (int) (point*0.95);
+		 default:
+			return (int) (point*0.97);
+		}
+	}
 }
