@@ -23,7 +23,8 @@ public class Coupon {
 
     // ex) 10% 할인 쿠폰
     private String name;
-    @OneToMany(mappedBy = "coupon")
+    //영속화된 엔티티와 관련된 엔티티 영속화
+    @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<MemberCoupon> coupons;
     private double discount;
