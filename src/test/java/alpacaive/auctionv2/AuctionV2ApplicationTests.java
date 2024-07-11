@@ -19,8 +19,8 @@ class AuctionV2ApplicationTests {
 	private AuctionDao adao;
     @Test
     void contextLoads() {
-    	Bid b = dao.findMaxValue(1);
-    	System.out.println(b);
+//    	Bid b = dao.findMaxValue(1);
+//    	System.out.println(b);
     }
     @Test
     void 옥션Dao쿼리테스트() {

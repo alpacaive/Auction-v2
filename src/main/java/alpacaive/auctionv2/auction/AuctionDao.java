@@ -19,6 +19,7 @@ public interface AuctionDao extends JpaRepository<Auction, Integer> {
 	@Lock(LockModeType.PESSIMISTIC_READ)
 	Optional<Auction> findById(Integer id);
 	
+	
 	// 판매자로 찾기
 	ArrayList<Auction> findBySellerOrderByNumDesc(Member seller);
 	// 상품번호로 찾기
