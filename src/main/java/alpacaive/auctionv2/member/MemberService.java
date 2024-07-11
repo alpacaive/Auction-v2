@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 import alpacaive.auctionv2.card.Card;
 import alpacaive.auctionv2.card.CardDao;
 import alpacaive.auctionv2.card.CardDto;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class MemberService {
 	@Autowired
 	private MemberDao dao;
