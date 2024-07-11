@@ -1,9 +1,6 @@
 package alpacaive.auctionv2.auction;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -252,7 +249,8 @@ public class AuctionService {
 		if (b.getPrice() <= adto.getMax()) {  //입칠자의 입찰가가 현재가 보다 낮을시 입찰 취소
 			return -2;
 		}
-		Bid maxValue = bdao.findMaxValue(b.getParent());  //현재입찰정보 검색
+		Optional<Bid> maxValue = Optional.ofNullable(bdao.findMaxValue(b.getParent()).orElseThrow(() ->
+                new RuntimeException("shit")));  //현재입찰정보 검색
 		bdao.save(Bid.create(dto));
 		if (maxValue == null) {   // 현재 입찰자 없을시
 			buyer.setPoint(buyer.getPoint() - b.getPrice()); 
@@ -262,8 +260,8 @@ public class AuctionService {
 			dao.save(Auction.create(adto));
 			return adto.getMax();
 		}
-		int getPoint = maxValue.getPrice();   //현재 입찰자 있을시
-		Member pbuyer = mdao.findById(maxValue.getBuyer().getId()).orElse(null);
+		int getPoint = maxValue.get().getPrice();   //현재 입찰자 있을시
+		Member pbuyer = mdao.findById(maxValue.get().getBuyer().getId()).orElse(null);
 		pbuyer.setPoint(pbuyer.getPoint() + getPoint);
 		adto.setBcnt(auction.getBcnt() + 1);
 		adto.setMax(b.getPrice());
