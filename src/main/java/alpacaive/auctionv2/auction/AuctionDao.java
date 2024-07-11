@@ -1,17 +1,23 @@
 package alpacaive.auctionv2.auction;
 
-import alpacaive.auctionv2.member.Member;
-import alpacaive.auctionv2.product.Product;
+import java.util.ArrayList;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
+import alpacaive.auctionv2.member.Member;
+import alpacaive.auctionv2.product.Product;
+import jakarta.persistence.LockModeType;
 
 @Repository
 public interface AuctionDao extends JpaRepository<Auction, Integer> {
 	
+	@Lock(LockModeType.PESSIMISTIC_READ)
+	Optional<Auction> findById(Integer id);
 	
 	// 판매자로 찾기
 	ArrayList<Auction> findBySellerOrderByNumDesc(Member seller);
