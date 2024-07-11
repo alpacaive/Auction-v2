@@ -23,11 +23,11 @@ public class Coupon {
 
     // ex) 10% 할인 쿠폰
     private String name;
-    //영속화된 엔티티와 관련된 엔티티 영속화
-    @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "coupon")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<MemberCoupon> coupons;
     private double discount;
+    private int amount;
     private Date end_date;
     private boolean isExpired;
 
@@ -49,9 +49,8 @@ public class Coupon {
                 .coupons(coupons)
                 .build();
     }
-
-    public void addMemberCoupon(MemberCoupon coupon) {
-        coupons.add(coupon);
-        coupon.setCoupon(this);
+    //재고 -1
+    public void discountAmount() {
+        amount -= 1;
     }
 }

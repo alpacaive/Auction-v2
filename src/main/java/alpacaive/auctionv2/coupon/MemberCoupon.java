@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.parameters.P;
 
 @Entity
 @Getter
@@ -16,12 +17,17 @@ public class MemberCoupon {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_mc")
     @SequenceGenerator(name = "seq_mc", allocationSize = 1,sequenceName = "seq_mc")
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
-    @ManyToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.LAZY)
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "coupon_id")
     private Coupon coupon;
+
+    private boolean isUsed = false;
 
     @Builder
     public MemberCoupon(Member member, Coupon coupon) {
@@ -34,5 +40,9 @@ public class MemberCoupon {
                 .member(member)
                 .coupon(coupon)
                 .build();
+    }
+
+    public void updateUsed(){
+        isUsed = true;
     }
 }
