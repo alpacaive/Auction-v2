@@ -15,10 +15,10 @@ import alpacaive.auctionv2.bid.BidDao;
 import alpacaive.auctionv2.bid.BidDto;
 import alpacaive.auctionv2.member.Member;
 import alpacaive.auctionv2.member.MemberDao;
-import alpacaive.auctionv2.member.MemberDto;
 import alpacaive.auctionv2.notification.Notification;
 import alpacaive.auctionv2.notification.repository.NotificationRepository;
 import alpacaive.auctionv2.product.Product;
+import jakarta.transaction.Transactional;
 
 @Service
 public class AuctionService {
@@ -237,7 +237,7 @@ public class AuctionService {
 		}
 		return true;
 	}
-	 
+	@Transactional
 	public int normalBid(BidAddDto b) {
 		Member buyer = mdao.findById(b.getBuyer()).orElse(null); // 입찰자 검색
 		Auction auction = dao.findById(b.getParent()).orElse(null);  // 경매 검색
