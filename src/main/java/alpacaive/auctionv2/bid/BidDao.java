@@ -1,6 +1,7 @@
 package alpacaive.auctionv2.bid;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -21,7 +22,7 @@ public interface BidDao extends JpaRepository<Bid, Integer> {
 	ArrayList<Bid> findByBuyerByPrice(int parent);
 	@Lock(LockModeType.PESSIMISTIC_READ)
 	@Query("SELECT b FROM Bid b WHERE b.price = (SELECT MAX(b2.price) FROM Bid b2 WHERE b2.parent.num = :parent)")
-	Bid findMaxValue(@Param("parent") int parent);
+	Optional<Bid> findMaxValue(@Param("parent") int parent);
 	
 	ArrayList<Bid> findByBuyerOrderByNumDesc(Member buyer);
 }
