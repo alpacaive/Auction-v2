@@ -1,21 +1,27 @@
 package alpacaive.auctionv2.auction;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import alpacaive.auctionv2.bid.Bid;
 import alpacaive.auctionv2.bid.BidAddDto;
 import alpacaive.auctionv2.bid.BidDao;
 import alpacaive.auctionv2.bid.BidDto;
+import alpacaive.auctionv2.exception.DuplecateBidException;
 import alpacaive.auctionv2.member.Member;
 import alpacaive.auctionv2.member.MemberDao;
 import alpacaive.auctionv2.notification.Notification;
 import alpacaive.auctionv2.notification.repository.NotificationRepository;
 import alpacaive.auctionv2.product.Product;
-import jakarta.transaction.Transactional;
+
 
 @Service
 public class AuctionService {
@@ -234,7 +240,7 @@ public class AuctionService {
 		}
 		return true;
 	}
-	@Transactional
+	@Transactional(rollbackFor = Exception.class)
 	public int normalBid(BidAddDto b) {
 		Member buyer = mdao.findById(b.getBuyer()).orElse(null); // 입찰자 검색
 		Auction auction = dao.findById(b.getParent()).orElse(null);  // 경매 검색
@@ -250,7 +256,7 @@ public class AuctionService {
 			return -2;
 		}
 		Optional<Bid> maxValue = Optional.ofNullable(bdao.findMaxValue(b.getParent()).orElseThrow(() ->
-                new RuntimeException("shit")));  //현재입찰정보 검색
+                new DuplecateBidException()));  //현재입찰정보 검색
 		bdao.save(Bid.create(dto));
 		if (maxValue == null) {   // 현재 입찰자 없을시
 			buyer.setPoint(buyer.getPoint() - b.getPrice()); 
