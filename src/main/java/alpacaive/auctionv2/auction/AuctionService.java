@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import alpacaive.auctionv2.bid.Bid;
@@ -15,6 +16,8 @@ import alpacaive.auctionv2.bid.BidDto;
 import alpacaive.auctionv2.member.Member;
 import alpacaive.auctionv2.member.MemberDao;
 import alpacaive.auctionv2.member.MemberDto;
+import alpacaive.auctionv2.notification.Notification;
+import alpacaive.auctionv2.notification.repository.NotificationRepository;
 import alpacaive.auctionv2.product.Product;
 
 @Service
@@ -26,6 +29,10 @@ public class AuctionService {
 	private BidDao bdao;
 	@Autowired
 	private MemberDao mdao;
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;
+	@Autowired
+	private NotificationRepository notificationRepository;
 
 	public void save(AuctionDto dto) {
 		dao.save(Auction.create(dto));
@@ -66,28 +73,26 @@ public class AuctionService {
 		return list;
 
 	}
-	
+
 	// 전체목록
-		public ArrayList<AuctionDto> getlatestAuction() {
-			List<Auction> l = dao.findByStatusOrderByNumDesc("경매중");
-			int i=0;
-			ArrayList<AuctionDto> list = new ArrayList<>();
-			for (Auction a : l) {
-				if(i>2) {
-					break;
-				}
-				list.add(AuctionDto.create(a));
-				i++;
+	public ArrayList<AuctionDto> getlatestAuction() {
+		List<Auction> l = dao.findByStatusOrderByNumDesc("경매중");
+		int i = 0;
+		ArrayList<AuctionDto> list = new ArrayList<>();
+		for (Auction a : l) {
+			if (i > 2) {
+				break;
 			}
-			return list;
+			list.add(AuctionDto.create(a));
+			i++;
 		}
-	
-	
-	
-	public ArrayList<AuctionDto> getAll(Auction.Type type){
-		ArrayList<Auction> l=dao.findByStatusAndTypeOrderByNumDesc("경매중", type);
-		ArrayList<AuctionDto> list=new ArrayList<>();
-		for(Auction a :l) {
+		return list;
+	}
+
+	public ArrayList<AuctionDto> getAll(Auction.Type type) {
+		ArrayList<Auction> l = dao.findByStatusAndTypeOrderByNumDesc("경매중", type);
+		ArrayList<AuctionDto> list = new ArrayList<>();
+		for (Auction a : l) {
 			list.add(AuctionDto.create(a));
 		}
 		return list;
@@ -98,8 +103,8 @@ public class AuctionService {
 		List<Auction> l = dao.findByStatusOrderByBcntDesc(status);
 		ArrayList<AuctionDto> list = new ArrayList<>();
 		for (Auction a : l) {
-			AuctionDto dto=AuctionDto.create(a);
-			if(dto.getType().equals(Auction.Type.BLIND)) {
+			AuctionDto dto = AuctionDto.create(a);
+			if (dto.getType().equals(Auction.Type.BLIND)) {
 				dto.setMax(dto.getMin());
 			}
 			list.add(dto);
@@ -107,21 +112,20 @@ public class AuctionService {
 		return list;
 
 	}
-	
-	public ArrayList<AuctionDto> getByTypeIndex(Auction.Type type ){
-		ArrayList<AuctionDto>list=getAll();
-		ArrayList<AuctionDto> list2= new ArrayList<>();
-		for(int i=0;i<list.size();i++) {
-			if(list.get(i).getType().equals(type) && list.get(i).getStatus().equals("경매중")) {
-				list2.add(list.get(i));				
-				}
-				if(list2.size()>5) {
-					break;
-				}
+
+	public ArrayList<AuctionDto> getByTypeIndex(Auction.Type type) {
+		ArrayList<AuctionDto> list = getAll();
+		ArrayList<AuctionDto> list2 = new ArrayList<>();
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i).getType().equals(type) && list.get(i).getStatus().equals("경매중")) {
+				list2.add(list.get(i));
+			}
+			if (list2.size() > 5) {
+				break;
+			}
 		}
 		return list2;
 	}
-	
 
 	// 판매자로 찾기
 	public ArrayList<AuctionDto> getBySeller(String seller) {
@@ -233,43 +237,85 @@ public class AuctionService {
 		}
 		return true;
 	}
-
-	public int bid(BidAddDto b) {
-		Member buyer = mdao.findById(b.getBuyer()).orElse(null);
-		Auction auction = dao.findById(b.getParent()).orElse(null);
-		AuctionDto adto = AuctionDto.create(auction);
-		BidDto dto = new BidDto(b.getNum(), auction, buyer, b.getPrice(), new Date());
-		if (dto.getBidtime().after(auction.getEnd_time())) {
+	 
+	public int normalBid(BidAddDto b) {
+		Member buyer = mdao.findById(b.getBuyer()).orElse(null); // 입찰자 검색
+		Auction auction = dao.findById(b.getParent()).orElse(null);  // 경매 검색
+		AuctionDto adto = AuctionDto.create(auction);  //경매 Dto생성
+		BidDto dto = new BidDto(b.getNum(), auction, buyer, b.getPrice(), new Date()); //입찰 dto 생성
+		if (dto.getBidtime().after(auction.getEnd_time())) {  // 경매 마감일시 입찰 취소
 			return 0;
 		}
-		if (buyer.getPoint() < b.getPrice()) {
+		if (buyer.getPoint() < b.getPrice()) {  // 일차자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
 			return -1;
 		}
-		Bid bid = bdao.findMaxValue(b.getParent());
-		if (auction.getType().equals(Auction.Type.NORMAL) && bid==null) {
-			if(b.getPrice()<adto.getMax()) {
-				return -2;
-			}
-			int getPoint = bid.getPrice();
-			Member pbuyer = mdao.findById(bid.getBuyer().getId()).orElse(null);
-			pbuyer.setPoint(pbuyer.getPoint() + getPoint);
-			mdao.save(pbuyer);
+		if (b.getPrice() <= adto.getMax()) {  //입칠자의 입찰가가 현재가 보다 낮을시 입찰 취소
+			return -2;
 		}
-		buyer.setPoint(buyer.getPoint() - b.getPrice());
+		Bid maxValue = bdao.findMaxValue(b.getParent());  //현재입찰정보 검색
 		bdao.save(Bid.create(dto));
-		adto.setBcnt(auction.getBcnt() + 1);
-		if ((auction.getType().equals(Auction.Type.EVENT))) {
-			adto.setMax(auction.getMax() + b.getPrice());
-		} else {
+		if (maxValue == null) {   // 현재 입찰자 없을시
+			buyer.setPoint(buyer.getPoint() - b.getPrice()); 
+			adto.setBcnt(auction.getBcnt() + 1);
 			adto.setMax(b.getPrice());
+			mdao.save(buyer);
+			dao.save(Auction.create(adto));
+			return adto.getMax();
 		}
-		save(adto);
-		mdao.save(buyer);
-		//입찰시 판매자에게 10exp 부여
-		MemberDto seller=MemberDto.create(adto.getSeller());
-		seller.setExp(seller.getExp()+10);
-		mdao.save(Member.create(seller));
+		int getPoint = maxValue.getPrice();   //현재 입찰자 있을시
+		Member pbuyer = mdao.findById(maxValue.getBuyer().getId()).orElse(null);
+		pbuyer.setPoint(pbuyer.getPoint() + getPoint);
+		adto.setBcnt(auction.getBcnt() + 1);
+		adto.setMax(b.getPrice());
+		dao.save(Auction.create(adto));
+		mdao.save(pbuyer);
+		Notification notification = Notification.create(pbuyer.getId(), auction.getTitle(), "입찰을 뺏겼습니다"); // 전 입찰자에게 알림
+		notificationRepository.save(notification); // redis 저장
+		messagingTemplate.convertAndSend("/sub/notice/list/" + pbuyer.getId(),notificationRepository.findByName(pbuyer.getId())); // websocket으로 전달
 		return adto.getMax();
 	}
+	
+	public int blindBid(BidAddDto b) {
+		Member buyer = mdao.findById(b.getBuyer()).orElse(null); // 입찰자 검색
+		Auction auction = dao.findById(b.getParent()).orElse(null);  // 경매 검색
+		AuctionDto adto = AuctionDto.create(auction);  //경매 Dto생성
+		BidDto dto = new BidDto(b.getNum(), auction, buyer, b.getPrice(), new Date()); //입찰 dto 생성
+		if (dto.getBidtime().after(auction.getEnd_time())) {  // 경매 마감일시 입찰 취소
+			return 0;
+		}
+		if (buyer.getPoint() < b.getPrice()) {  // 일차자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
+			return -1;
+		}
+		buyer.setPoint(buyer.getPoint() - b.getPrice()); 
+		adto.setBcnt(auction.getBcnt() + 1);
+		if(b.getPrice()>adto.getMax()) {
+			adto.setMax(b.getPrice());
+		}
+		bdao.save(Bid.create(dto));
+		mdao.save(buyer);
+		dao.save(Auction.create(adto));
+		return adto.getMin();
+	}
+	
+	public int eventBid(BidAddDto b) {
+		Member buyer = mdao.findById(b.getBuyer()).orElse(null); // 입찰자 검색
+		Auction auction = dao.findById(b.getParent()).orElse(null);  // 경매 검색
+		AuctionDto adto = AuctionDto.create(auction);  //경매 Dto생성
+		BidDto dto = new BidDto(b.getNum(), auction, buyer, b.getPrice(), new Date()); //입찰 dto 생성
+		if (dto.getBidtime().after(auction.getEnd_time())) {  // 경매 마감일시 입찰 취소
+			return 0;
+		}
+		if (buyer.getPoint() < b.getPrice()) {  // 일차자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
+			return -1;
+		}
+		buyer.setPoint(buyer.getPoint() - b.getPrice()); 
+		adto.setBcnt(auction.getBcnt() + 1);
+		adto.setMax(adto.getMax()+b.getPrice());
+		bdao.save(Bid.create(dto));
+		mdao.save(buyer);
+		dao.save(Auction.create(adto));
+		return adto.getMax();
+	}
+	
 
 }
