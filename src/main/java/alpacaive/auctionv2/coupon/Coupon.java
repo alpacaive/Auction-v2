@@ -26,13 +26,13 @@ public class Coupon {
     @OneToMany(mappedBy = "coupon")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<MemberCoupon> coupons;
-    private double discount;
+    private Integer discount;
     private int amount;
     private Date end_date;
     private boolean isExpired;
 
     @Builder
-    public Coupon(String name, double discount, Date end_date, boolean isExpired, List<MemberCoupon> coupons) {
+    public Coupon(String name, Integer discount, Date end_date, boolean isExpired, List<MemberCoupon> coupons) {
         this.name = name;
         this.discount = discount;
         this.end_date = end_date;
@@ -40,7 +40,7 @@ public class Coupon {
         this.coupons = coupons;
     }
 
-    public static Coupon couponCreate(String name, double discount, Date end_date, List<MemberCoupon> coupons) {
+    public static Coupon couponCreate(String name, Integer discount, Date end_date, List<MemberCoupon> coupons) {
         return Coupon.builder()
                 .name(name)
                 .discount(discount)

@@ -10,5 +10,4 @@ import java.util.Optional;
 public interface MemberCouponDao extends JpaRepository<MemberCoupon, Long> {
     List<MemberCoupon> findByMemberId(String memberId);
     MemberCoupon findByCouponIdAndMemberId(long couponId, String memberId);
-
 }
