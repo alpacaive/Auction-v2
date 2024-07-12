@@ -40,21 +40,26 @@ public class MemberCouponService {
 
     //내 쿠폰 목록 검색
     public List<Coupon> findCouponByMemberId(String member_id) {
-        Member member = memberDao.findByIdWithMember(member_id);
+        Optional<Member> member = Optional.ofNullable(memberDao.findByIdWithMember(member_id).orElse(null));
+        if (member.isEmpty()) {
+            return null;
+        }
         List<Coupon> couponList = new ArrayList<>();
-        for (MemberCoupon mc : member.getMember()) {
+        for (MemberCoupon mc : member.get().getMember()) {
             couponList.add(mc.getCoupon());
+            log.debug("Found coupon for member {}", mc.getCoupon().getDiscount());
         }
         return couponList;
     }
 
     //쿠폰 사용시 사용여부 변경
     //사용하면 true 아니면 false
-    public void updateUsed(long coupon_id, String member_id) {
+    public MemberCoupon updateUsed(long coupon_id, String member_id) {
         MemberCoupon coupon = memberCouponDao.findByCouponIdAndMemberId(coupon_id, member_id);
         coupon.updateUsed();
         memberCouponDao.save(coupon);
         log.debug("Updated coupon for member={},coupon={}", member_id, coupon.getCoupon().getName());
+        return coupon;
     }
 
     //쿠폰재고 감소
@@ -64,4 +69,5 @@ public class MemberCouponService {
         int amount = coupon.get().getAmount();
         log.debug(String.valueOf(amount));
     }
+
 }
