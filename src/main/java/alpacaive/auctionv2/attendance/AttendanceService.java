@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class AttendanceService {
@@ -18,20 +16,16 @@ public class AttendanceService {
     @Autowired
     private MemberDao mdao;
 
-    public Map attendanceCheck(String id) {
-        Map map = new HashMap();
-
+    public int attendanceCheck(String id) {
         LocalDate today = LocalDate.now();
         Member m = mdao.findById(id).orElse(null);
         if (m == null) {
-            map.put("msg", "없는 회원입니다.");
-            return map;
+            return 3;
         }
 
         Attendance a = dao.findByMidAndToday(m, today);
         if (a != null) {
-            map.put("msg", "이미 출석체크를 완료하였습니다.");
-            return map;
+            return 2;
         }
 
         m.setPoint(m.getPoint() + 100);
@@ -41,8 +35,7 @@ public class AttendanceService {
         a1.setMid(m);
         a1.setToday(today);
         dao.save(a1);
-        map.put("msg", "출석체크 완료.");
-        return map;
+        return 1;
 
     }
 
