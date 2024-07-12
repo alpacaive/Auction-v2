@@ -82,7 +82,7 @@ public class MemberService {
 		return list;
 	}
 
-	public void exchage(String id, int point) {
+	public void exchage(String id, int point, double discount) {
 		MemberDto member = MemberDto.create(dao.findById(id).orElse(null));
 		CardDto card = CardDto.create(member.getCardnum());
 		int feepoint=member.getFee(point);

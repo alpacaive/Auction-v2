@@ -1,8 +1,10 @@
 package alpacaive.auctionv2.member;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import alpacaive.auctionv2.coupon.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -17,7 +19,6 @@ import alpacaive.auctionv2.auction.AuctionService;
 import alpacaive.auctionv2.card.Card;
 import alpacaive.auctionv2.card.CardDto;
 import alpacaive.auctionv2.card.CardService;
-import alpacaive.auctionv2.coupon.Coupon;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,7 +32,8 @@ public class MemberController {
 	private CardService cservice;
 	@Autowired
 	private AuctionService aservice;
-
+	@Autowired
+	private MemberCouponService couponService;
 
 	@GetMapping("/adjoin")
 	public String adjoinForm() {
@@ -183,10 +185,17 @@ public class MemberController {
 	@GetMapping("/auth/member/exchange")
 	public String exchangeform(String id, ModelMap map) {
 		MemberDto m = service.getUser(id);
+		List<Coupon> couponByMemberId = couponService.findCouponByMemberId(id);
 		map.addAttribute("member", m);
 		if(m.getCardnum() == null) {
 			map.addAttribute("flag",true);
 			return "member/card";
+		}
+		if(!couponByMemberId.isEmpty()){
+			for (Coupon coupon : couponByMemberId) {
+				log.debug("coupon: {}", coupon.getDiscount());
+			}
+			map.addAttribute("myCouponList",couponByMemberId);
 		}
 		return "member/exchange";
 	}
@@ -229,11 +238,15 @@ public class MemberController {
 		return map;
 	}
 	@PostMapping("/auth/member/exchange")
-	public String exchange(HttpSession session,int point,ModelMap map) {
+	public String exchange(HttpSession session,int point,ModelMap map,int discount) {
+		String loginId = (String) session.getAttribute("loginId");
+		MemberCoupon memberCoupon = couponService.updateUsed(discount, loginId);
+		log.debug("discount: {}", memberCoupon);
 //		if(coupon!=null) {
 //			//쿠폰 적용 코드
 //		}
-		service.exchage((String)session.getAttribute("loginId"), point);
+		couponService.updateUsed(discount, (String) session.getAttribute("loginId"));
+		service.exchage(loginId,point, memberCoupon.getCoupon().getDiscount());
 		return "index_member";
 	}
 }

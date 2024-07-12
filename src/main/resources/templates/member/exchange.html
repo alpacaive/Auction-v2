@@ -330,6 +330,13 @@
                         <td>보유 Point</td>
                         <td id="member-point" th:text="${member.point}"></td>
                     </tr>
+<!--                    <tr>-->
+<!--                        <td>내 쿠폰 목록</td>-->
+<!--                    </tr>-->
+<!--                    <tr th:each="coupon : ${myCouponList}">-->
+<!--                        <td id="member-coupon" th:text="${coupon.name}"></td>-->
+<!--                        <td th:value="${coupon.discount}"> <input type="button" th:id="${coupon.id}" th:onclick="'useCoupon(' + ${coupon.id} + ')'" value="쿠폰사용"></td>-->
+<!--                    </tr>-->
                 </table>
 
                 <div class="form-group">
@@ -342,6 +349,12 @@
                         <option value="300000">30만</option>
                         <option value="500000">50만</option>
                         <option value="1000000">100만</option>
+                    </select>
+                    <br/>
+                    <label for="point-select1">사용할 쿠폰:</label>
+                    <select id="point-select1" name="discount" >
+                        <option th:each="coupon : ${myCouponList}" th:value="${coupon.id}" th:text="${coupon.name}">
+                        </option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -496,6 +509,11 @@
         </div>
     </div>
 </div>
+<script>
+function useCoupon(couponId){
+    document.getElementById(couponId).disabled = true;
+}
+</script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
