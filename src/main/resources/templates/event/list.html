@@ -19,6 +19,7 @@
     <!-- script
     ================================================== -->
     <script src="/js/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>alItem | 내상품 목록</title>
     <style>
         .container1 {
@@ -37,205 +38,262 @@
         }
 
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#attendanceForm').on('submit', function(e) {
+                e.preventDefault(); // 폼 기본 제출 동작 막기
+                var id = $('#id').val().trim(); // 입력값 앞뒤 공백 제거
+                if (!id) { // ID가 비어있는지 확인
+                    alert("로그인 시 가능합니다.");
+                    return;
+                }
+                console.log("Sending ID:", id); // 디버깅용 ID 값 확인
+                $.ajax({
+                    url: '/attendancecheck',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ id: id }),
+                    success: function(res) {
+                        alert(res.msg); // 서버 응답 처리
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", status, error); // 오류 로그
+                        alert("오류 발생: " + error);
+                    }
+                });
+            });
+        });
+    </script>
 </head>
 
 <body data-bs-spy="scroll" data-bs-target="#navbar" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true"
       tabindex="0">
-    <div th:insert="~{header}"></div>
+<div th:insert="~{header}"></div>
 
-    <section id="billboard" class="position-relative overflow-hidden bg-light-blue">
-    </section>
-    <section id="company-services" class="padding-large">
-    </section>
+<section id="billboard" class="position-relative overflow-hidden bg-light-blue">
+</section>
+<section id="company-services" class="padding-large">
+</section>
 
-    <!--여기서부터 하면 됌-->
-    <div class="container1">
-        <div class="row1">
-            <div class="display-header d-flex justify-content-between pb-3">
-                <h2 class="display-7 text-dark text-uppercase" style="margin-bottom: 25px">이벤트</h2>
-            </div>
-            <hr style="all: unset; display: block; width: 100%; height: 2px; background-color: #000000; border: none; padding: 0; margin-bottom: 41px">
+<!--여기서부터 하면 됌-->
+<div class="container1">
+    <div class="row1">
+        <div class="display-header d-flex justify-content-between pb-3">
+            <h2 class="display-7 text-dark text-uppercase" style="margin-bottom: 25px">이벤트</h2>
         </div>
-            <div style="display: flex; flex-wrap: wrap;">
-                <div th:each="e : ${list}" style="flex: 0 0 calc(50% - 10px); margin: 5px; box-sizing: border-box;">
-                    <div class="d-flex align-items-center mb-3" style="display: flex; justify-content: space-between;">
-                        <input type="hidden" name="num" th:value="${e.num}">
-                        <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
-                            <div th:if="${e.img != null}">
-                                <img th:src="@{/all/read-img(img=${e.img})}"
-                                     style="width: 600px; height: 200px; object-fit: cover;">
-                            </div>
-                            <div th:if="${e.img == null}">
-                                <img src="/images/Noimg.jpg" style="width: 600px; height: 200px; object-fit: cover;">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3" style="padding-bottom: 40px">
-                        <h4 th:text="${e.title}" style="flex: 1; margin-bottom: 0; font-weight: lighter; text-align: center;"></h4>
-                        <h4 th:text="${e.wdate}" style="flex: 1; margin-bottom: 0; font-weight: lighter; text-align: center;"></h4>
+        <hr style="all: unset; display: block; width: 100%; height: 2px; background-color: #000000; border: none; padding: 0; margin-bottom: 41px">
+        <div>
+            <h3 style="margin-bottom: 41px; font-weight: lighter">출석체크</h3>
+        </div>
+    </div>
 
+    <div style="display: flex; flex-wrap: wrap;">
+        <div style="flex: 0 0 calc(50% - 10px); margin: 5px; box-sizing: border-box;">
+            <div class="d-flex align-items-center mb-3" style="display: flex; justify-content: space-between;">
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
+                    <div>
+                        <img src="/images/attendance.jpg" style="width: 600px; height: 200px; object-fit: cover;">
                     </div>
                 </div>
             </div>
+            <div class="mb-3" style="display: flex; justify-content: end; padding-bottom: 28px;">
+                <form id="attendanceForm">
+                    <input type="hidden" name="id" id="id" th:value="${session.loginId}"/>
+                    <button id="attendanceBtn" style="padding: 10px 20px; font-size: 16px; color: white; background-color: #4CAF50; border: 1px solid #bbb; border-radius: 10px; cursor: pointer; transition: background-color 0.3s ease, border-color 0.3s ease; outline: none;"
+                            onmouseover="this.style.backgroundColor='#bbb'; this.style.borderColor='#aaa';"
+                            onmouseout="this.style.backgroundColor='#ccc'; this.style.borderColor='#bbb';">
+                        출석체크
+                    </button>
+                </form>
+            </div>
+        </div>
+        <hr style="all: unset; display: block; width: 100%; height: 1px; background-color: #000000; border: none; padding: 0; margin-bottom: 37px">
 
+        <div>
+            <h3 style="margin-bottom: 41px; font-weight: lighter">쿠폰</h3>
+        </div>
+        <div th:each="e : ${list}" style="flex: 0 0 calc(50% - 10px); margin: 5px; box-sizing: border-box;">
+            <div class="d-flex align-items-center mb-3" style="display: flex; justify-content: space-between;">
+                <input type="hidden" name="num" th:value="${e.num}">
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
+                    <div th:if="${e.img != null}">
+                        <img th:src="@{/all/read-img(img=${e.img})}"
+                             style="width: 600px; height: 200px; object-fit: cover;">
+                    </div>
+                    <div th:if="${e.img == null}">
+                        <img src="/images/Noimg.jpg" style="width: 600px; height: 200px; object-fit: cover;">
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3" style="padding-bottom: 40px">
+                <h4 th:text="${e.title}"
+                    style="flex: 1; margin-bottom: 0; font-weight: lighter; text-align: center;"></h4>
+                <h4 th:text="${e.wdate}"
+                    style="flex: 1; margin-bottom: 0; font-weight: lighter; text-align: center;"></h4>
 
+            </div>
+        </div>
     </div>
 
-    <section id="latest-blog" class="padding-large">
-    </section>
-    <div th:insert="~{footer}"></div>
-    <!-- 제일 아래 섹션 -->
-    <!--<footer id="footer" class="overflow-hidden">-->
-    <!--    <div class="container">-->
-    <!--        <div class="row">-->
-    <!--            <div class="footer-top-area">-->
-    <!--                <div class="row d-flex flex-wrap justify-content-between">-->
-    <!--                    <div class="col-lg-3 col-sm-6 pb-3">-->
-    <!--                        <div class="footer-menu">-->
-    <!--                            <img src="/images/logo1.png" alt="logo"-->
-    <!--                                 style="height: 75px; width: 250px; margin-top: 3px; margin-bottom: 1px">-->
-    <!--                            <p>Nisi, purus vitae, ultrices nunc. Sit ac sit suscipit hendrerit. Gravida massa volutpat-->
-    <!--                                aenean odio erat nullam fringilla.</p>-->
-    <!--                            <div class="social-links">-->
-    <!--                                <ul class="d-flex list-unstyled">-->
-    <!--                                    <li>-->
-    <!--                                        <a href="#">-->
-    <!--                                            <svg class="facebook">-->
-    <!--                                                <use xlink:href="#facebook"/>-->
-    <!--                                            </svg>-->
-    <!--                                        </a>-->
-    <!--                                    </li>-->
-    <!--                                    <li>-->
-    <!--                                        <a href="#">-->
-    <!--                                            <svg class="instagram">-->
-    <!--                                                <use xlink:href="#instagram"/>-->
-    <!--                                            </svg>-->
-    <!--                                        </a>-->
-    <!--                                    </li>-->
-    <!--                                    <li>-->
-    <!--                                        <a href="#">-->
-    <!--                                            <svg class="twitter">-->
-    <!--                                                <use xlink:href="#twitter"/>-->
-    <!--                                            </svg>-->
-    <!--                                        </a>-->
-    <!--                                    </li>-->
-    <!--                                    <li>-->
-    <!--                                        <a href="#">-->
-    <!--                                            <svg class="linkedin">-->
-    <!--                                                <use xlink:href="#linkedin"/>-->
-    <!--                                            </svg>-->
-    <!--                                        </a>-->
-    <!--                                    </li>-->
-    <!--                                    <li>-->
-    <!--                                        <a href="#">-->
-    <!--                                            <svg class="youtube">-->
-    <!--                                                <use xlink:href="#youtube"/>-->
-    <!--                                            </svg>-->
-    <!--                                        </a>-->
-    <!--                                    </li>-->
-    <!--                                </ul>-->
-    <!--                            </div>-->
-    <!--                        </div>-->
-    <!--                    </div>-->
-    <!--                    <div class="col-lg-2 col-sm-6 pb-3">-->
-    <!--                        <div class="footer-menu text-uppercase">-->
-    <!--                            <h5 class="widget-title pb-2">Quick Links</h5>-->
-    <!--                            <ul class="menu-list list-unstyled text-uppercase">-->
-    <!--                                <li class="menu-item pb-2">-->
-    <!--                                    <a href="#">Home</a>-->
-    <!--                                </li>-->
-    <!--                                <li class="menu-item pb-2">-->
-    <!--                                    <a href="#">About</a>-->
-    <!--                                </li>-->
-    <!--                                <li class="menu-item pb-2">-->
-    <!--                                    <a href="#">Shop</a>-->
-    <!--                                </li>-->
-    <!--                                <li class="menu-item pb-2">-->
-    <!--                                    <a href="#">Blogs</a>-->
-    <!--                                </li>-->
-    <!--                                <li class="menu-item pb-2">-->
-    <!--                                    <a href="#">Contact</a>-->
-    <!--                                </li>-->
-    <!--                            </ul>-->
-    <!--                        </div>-->
-    <!--                    </div>-->
-    <!--                    <div class="col-lg-3 col-sm-6 pb-3">-->
-    <!--                        <div class="footer-menu text-uppercase">-->
-    <!--                            <h5 class="widget-title pb-2">Help & Info Help</h5>-->
-    <!--                            <ul class="menu-list list-unstyled">-->
-    <!--                                <li class="menu-item pb-2">-->
-    <!--                                    <a href="#">Track Your Order</a>-->
-    <!--                                </li>-->
-    <!--                                <li class="menu-item pb-2">-->
-    <!--                                    <a href="#">Returns Policies</a>-->
-    <!--                                </li>-->
-    <!--                                <li class="menu-item pb-2">-->
-    <!--                                    <a href="#">Shipping + Delivery</a>-->
-    <!--                                </li>-->
-    <!--                                <li class="menu-item pb-2">-->
-    <!--                                    <a href="#">Contact Us</a>-->
-    <!--                                </li>-->
-    <!--                                <li class="menu-item pb-2">-->
-    <!--                                    <a href="#">Faqs</a>-->
-    <!--                                </li>-->
-    <!--                            </ul>-->
-    <!--                        </div>-->
-    <!--                    </div>-->
-    <!--                    <div class="col-lg-3 col-sm-6 pb-3">-->
-    <!--                        <div class="footer-menu contact-item">-->
-    <!--                            <h5 class="widget-title text-uppercase pb-2">Contact Us</h5>-->
-    <!--                            <p>Do you have any queries or suggestions? <a href="mailto:">yourinfo@gmail.com</a>-->
-    <!--                            </p>-->
-    <!--                            <p>If you need support? Just give us a call. <a href="">+55 111 222 333 44</a>-->
-    <!--                            </p>-->
-    <!--                        </div>-->
-    <!--                    </div>-->
-    <!--                </div>-->
-    <!--            </div>-->
-    <!--        </div>-->
-    <!--    </div>-->
-    <!--    <hr>-->
-    <!--</footer>-->
 
-    <!--<div id="footer-bottom">-->
-    <!--    <div class="container">-->
-    <!--        <div class="row d-flex flex-wrap justify-content-between">-->
-    <!--            <div class="col-md-4 col-sm-6">-->
-    <!--                <div class="Shipping d-flex">-->
-    <!--                    <p>We ship with:</p>-->
-    <!--                    <div class="card-wrap ps-2">-->
-    <!--                        <img src="/images/dhl.png" alt="visa">-->
-    <!--                        <img src="/images/shippingcard.png" alt="mastercard">-->
-    <!--                    </div>-->
-    <!--                </div>-->
-    <!--            </div>-->
-    <!--            <div class="col-md-4 col-sm-6">-->
-    <!--                <div class="payment-method d-flex">-->
-    <!--                    <p>Payment options:</p>-->
-    <!--                    <div class="card-wrap ps-2">-->
-    <!--                        <img src="/images/visa.jpg" alt="visa">-->
-    <!--                        <img src="/images/mastercard.jpg" alt="mastercard">-->
-    <!--                        <img src="/images/paypal.jpg" alt="paypal">-->
-    <!--                    </div>-->
-    <!--                </div>-->
-    <!--            </div>-->
-    <!--            <div class="col-md-4 col-sm-6">-->
-    <!--                <div class="copyright">-->
-    <!--                    <p>© Copyright 2023 MiniStore. Design by <a href="https://templatesjungle.com/">TemplatesJungle</a>-->
-    <!--                        Distribution by <a href="https://themewagon.com">ThemeWagon</a>-->
-    <!--                    </p>-->
-    <!--                </div>-->
-    <!--            </div>-->
-    <!--        </div>-->
-    <!--    </div>-->
-    <!--</div>-->
-    <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
-    <!--<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>-->
-    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>-->
-    <!--<script src="/notice.js"></script>-->
-    <!--<script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>-->
-    <!--<script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>-->
-    <!--<script type="text/javascript" src="/js/plugins.js"></script>-->
-    <!--<script type="text/javascript" src="/js/script.js"></script>-->
+</div>
+
+<section id="latest-blog" class="padding-large">
+</section>
+<div th:insert="~{footer}"></div>
+<!-- 제일 아래 섹션 -->
+<!--<footer id="footer" class="overflow-hidden">-->
+<!--    <div class="container">-->
+<!--        <div class="row">-->
+<!--            <div class="footer-top-area">-->
+<!--                <div class="row d-flex flex-wrap justify-content-between">-->
+<!--                    <div class="col-lg-3 col-sm-6 pb-3">-->
+<!--                        <div class="footer-menu">-->
+<!--                            <img src="/images/logo1.png" alt="logo"-->
+<!--                                 style="height: 75px; width: 250px; margin-top: 3px; margin-bottom: 1px">-->
+<!--                            <p>Nisi, purus vitae, ultrices nunc. Sit ac sit suscipit hendrerit. Gravida massa volutpat-->
+<!--                                aenean odio erat nullam fringilla.</p>-->
+<!--                            <div class="social-links">-->
+<!--                                <ul class="d-flex list-unstyled">-->
+<!--                                    <li>-->
+<!--                                        <a href="#">-->
+<!--                                            <svg class="facebook">-->
+<!--                                                <use xlink:href="#facebook"/>-->
+<!--                                            </svg>-->
+<!--                                        </a>-->
+<!--                                    </li>-->
+<!--                                    <li>-->
+<!--                                        <a href="#">-->
+<!--                                            <svg class="instagram">-->
+<!--                                                <use xlink:href="#instagram"/>-->
+<!--                                            </svg>-->
+<!--                                        </a>-->
+<!--                                    </li>-->
+<!--                                    <li>-->
+<!--                                        <a href="#">-->
+<!--                                            <svg class="twitter">-->
+<!--                                                <use xlink:href="#twitter"/>-->
+<!--                                            </svg>-->
+<!--                                        </a>-->
+<!--                                    </li>-->
+<!--                                    <li>-->
+<!--                                        <a href="#">-->
+<!--                                            <svg class="linkedin">-->
+<!--                                                <use xlink:href="#linkedin"/>-->
+<!--                                            </svg>-->
+<!--                                        </a>-->
+<!--                                    </li>-->
+<!--                                    <li>-->
+<!--                                        <a href="#">-->
+<!--                                            <svg class="youtube">-->
+<!--                                                <use xlink:href="#youtube"/>-->
+<!--                                            </svg>-->
+<!--                                        </a>-->
+<!--                                    </li>-->
+<!--                                </ul>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-lg-2 col-sm-6 pb-3">-->
+<!--                        <div class="footer-menu text-uppercase">-->
+<!--                            <h5 class="widget-title pb-2">Quick Links</h5>-->
+<!--                            <ul class="menu-list list-unstyled text-uppercase">-->
+<!--                                <li class="menu-item pb-2">-->
+<!--                                    <a href="#">Home</a>-->
+<!--                                </li>-->
+<!--                                <li class="menu-item pb-2">-->
+<!--                                    <a href="#">About</a>-->
+<!--                                </li>-->
+<!--                                <li class="menu-item pb-2">-->
+<!--                                    <a href="#">Shop</a>-->
+<!--                                </li>-->
+<!--                                <li class="menu-item pb-2">-->
+<!--                                    <a href="#">Blogs</a>-->
+<!--                                </li>-->
+<!--                                <li class="menu-item pb-2">-->
+<!--                                    <a href="#">Contact</a>-->
+<!--                                </li>-->
+<!--                            </ul>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-lg-3 col-sm-6 pb-3">-->
+<!--                        <div class="footer-menu text-uppercase">-->
+<!--                            <h5 class="widget-title pb-2">Help & Info Help</h5>-->
+<!--                            <ul class="menu-list list-unstyled">-->
+<!--                                <li class="menu-item pb-2">-->
+<!--                                    <a href="#">Track Your Order</a>-->
+<!--                                </li>-->
+<!--                                <li class="menu-item pb-2">-->
+<!--                                    <a href="#">Returns Policies</a>-->
+<!--                                </li>-->
+<!--                                <li class="menu-item pb-2">-->
+<!--                                    <a href="#">Shipping + Delivery</a>-->
+<!--                                </li>-->
+<!--                                <li class="menu-item pb-2">-->
+<!--                                    <a href="#">Contact Us</a>-->
+<!--                                </li>-->
+<!--                                <li class="menu-item pb-2">-->
+<!--                                    <a href="#">Faqs</a>-->
+<!--                                </li>-->
+<!--                            </ul>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-lg-3 col-sm-6 pb-3">-->
+<!--                        <div class="footer-menu contact-item">-->
+<!--                            <h5 class="widget-title text-uppercase pb-2">Contact Us</h5>-->
+<!--                            <p>Do you have any queries or suggestions? <a href="mailto:">yourinfo@gmail.com</a>-->
+<!--                            </p>-->
+<!--                            <p>If you need support? Just give us a call. <a href="">+55 111 222 333 44</a>-->
+<!--                            </p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <hr>-->
+<!--</footer>-->
+
+<!--<div id="footer-bottom">-->
+<!--    <div class="container">-->
+<!--        <div class="row d-flex flex-wrap justify-content-between">-->
+<!--            <div class="col-md-4 col-sm-6">-->
+<!--                <div class="Shipping d-flex">-->
+<!--                    <p>We ship with:</p>-->
+<!--                    <div class="card-wrap ps-2">-->
+<!--                        <img src="/images/dhl.png" alt="visa">-->
+<!--                        <img src="/images/shippingcard.png" alt="mastercard">-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="col-md-4 col-sm-6">-->
+<!--                <div class="payment-method d-flex">-->
+<!--                    <p>Payment options:</p>-->
+<!--                    <div class="card-wrap ps-2">-->
+<!--                        <img src="/images/visa.jpg" alt="visa">-->
+<!--                        <img src="/images/mastercard.jpg" alt="mastercard">-->
+<!--                        <img src="/images/paypal.jpg" alt="paypal">-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="col-md-4 col-sm-6">-->
+<!--                <div class="copyright">-->
+<!--                    <p>© Copyright 2023 MiniStore. Design by <a href="https://templatesjungle.com/">TemplatesJungle</a>-->
+<!--                        Distribution by <a href="https://themewagon.com">ThemeWagon</a>-->
+<!--                    </p>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>-->
+<!--<script src="/notice.js"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>-->
+<!--<script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>-->
+<!--<script type="text/javascript" src="/js/plugins.js"></script>-->
+<!--<script type="text/javascript" src="/js/script.js"></script>-->
 </body>
 </html>
