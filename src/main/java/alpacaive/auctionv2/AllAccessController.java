@@ -4,6 +4,7 @@ import alpacaive.auctionv2.auction.Auction;
 import alpacaive.auctionv2.auction.AuctionDto;
 import alpacaive.auctionv2.auction.AuctionService;
 import alpacaive.auctionv2.event.EventService;
+import alpacaive.auctionv2.member.MemberService;
 import alpacaive.auctionv2.product.Product;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ import java.util.Map;
 @Controller
 @RequestMapping("/all")
 public class AllAccessController {
+
+	@Autowired
+	private MemberService mservice;
 
 	@Autowired
 	private AuctionService aservice;
@@ -131,5 +135,11 @@ public class AllAccessController {
 	public String list(ModelMap map) {
 		map.addAttribute("list", eservice.getAll());
 		return "event/list";
+	}
+
+	@RequestMapping("/rank")
+	public String rank(ModelMap map) {
+		map.addAttribute("list",mservice.getRank());
+		return "member/rank";
 	}
 }

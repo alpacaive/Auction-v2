@@ -66,6 +66,21 @@ public class MemberService {
 		return list;
 	}
 
+	public ArrayList<MemberDto> getRank() {
+		List<Member> l = dao.findAllByOrderByExpDesc();
+		ArrayList<MemberDto> list = new ArrayList<>();
+		int cnt = 1;
+		for (Member u : l) {
+			if (cnt >= 11) {
+				break;
+			}
+			list.add(new MemberDto(u.getId(), u.getPwd(), u.getName(), u.getEmail(), u.getCardnum(), u.getPoint(),
+					u.getRank(), u.getExp(), u.getType()));
+			cnt++;
+		}
+		return list;
+	}
+
 	// id기준 삭제
 	public void delMember(String id) {
 		dao.deleteById(id);
