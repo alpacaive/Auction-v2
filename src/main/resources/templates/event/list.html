@@ -63,6 +63,27 @@
                     }
                 });
             });
+            $('#couponBtn').on('click', function (e){
+                e.preventDefault()
+                let id = $('#id').val()
+                let coupon_id = $('#coupon').val();
+                alert(coupon_id)
+                $.ajax({
+                    url: '/auth/coupon',
+                    type: "post",
+                    // contentType: 'application/json',
+                    data: {
+                        coupon_id : coupon_id,
+                        id:id
+                    },
+                    success: function (res){
+                        alert("sucess")
+                    },
+                    error: function (res){
+                        alert(res);
+                    }
+                })
+            })
         });
     </script>
 </head>
@@ -127,10 +148,16 @@
                 </div>
             </div>
             <div class="mb-3" style="padding-bottom: 40px">
-                <h4 th:text="${e.title}"
-                    style="flex: 1; margin-bottom: 0; font-weight: lighter; text-align: center;"></h4>
-                <h4 th:text="${e.wdate}"
-                    style="flex: 1; margin-bottom: 0; font-weight: lighter; text-align: center;"></h4>
+                <input type="hidden" th:value="${e.cnum.id}" id="coupon">
+<!--                <h4 th:text="${e.title}"-->
+<!--                    style="flex: 1; margin-bottom: 0; font-weight: lighter; text-align: center;"></h4>-->
+                <button id="couponBtn" style="padding: 10px 20px; font-size: 16px; color: white; background-color: #4CAF50; border: 1px solid #bbb; border-radius: 10px; cursor: pointer; transition: background-color 0.3s ease, border-color 0.3s ease; outline: none;"
+                        onmouseover="this.style.backgroundColor='#bbb'; this.style.borderColor='#aaa';"
+                        onmouseout="this.style.backgroundColor='#ccc'; this.style.borderColor='#bbb';">
+                    쿠폰받기
+                </button>
+<!--                <h4 th:text="${e.wdate}"-->
+<!--                    style="flex: 1; margin-bottom: 0; font-weight: lighter; text-align: center;"></h4>-->
 
             </div>
         </div>

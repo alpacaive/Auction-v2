@@ -93,6 +93,7 @@
                 <div class="d-flex align-items-start mb-3" style="padding-bottom: 33px; margin-bottom: 0">
                 <label for="point-select1">사용할 쿠폰:</label>
                 <select id="point-select1" name="cnum">
+                    <option th:text="없음" th:value="0"></option>
                     <option th:each="coupon : ${couponList}" th:value="${coupon.id}" th:text="${coupon.name}">
                     </option>
                 </select>
