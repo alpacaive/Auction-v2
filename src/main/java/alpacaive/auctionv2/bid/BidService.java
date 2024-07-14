@@ -51,6 +51,14 @@ public class BidService {
 		return BidDto.create(byBuyerByPrice.get(0));
 	}
 
+	public BidDto getMyBidInfo(int auction, String id) {
+		ArrayList<Bid> gang = dao.findByParentAndBuyerOrderByPriceDesc(new Auction(auction), new Member(id));
+		if(gang.size()==0) {
+			return null;
+		}
+		return BidDto.create(gang.get(0));
+	}
+
 	public ArrayList<BidDto> getByBuyer2(String buyer) {
 		List<Bid> l = dao.findByBuyerOrderByNumDesc(new Member(buyer, null, null, null, null, 0, null, 0, null));
 		ArrayList<BidDto> list = new ArrayList<>();

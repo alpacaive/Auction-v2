@@ -112,6 +112,7 @@ public class AuctionController {
 		map.addAttribute("end_time", dto.getTime(1));
 		String id=(String) session.getAttribute("loginId");
 		map.addAttribute("point",mservice.getUser(id).getPoint());
+		map.addAttribute("bid", bservice.getMyBidInfo(num, id));
 		return "/auction/detail";
 	}
 
