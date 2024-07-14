@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface MemberCouponDao extends JpaRepository<MemberCoupon, Long> {
+//    MemberCoupon
     List<MemberCoupon> findByMemberId(String memberId);
     MemberCoupon findByCouponIdAndMemberId(long couponId, String memberId);
 }

@@ -90,6 +90,13 @@
                                style="width: 60%; height: 90px; border: 1px solid #000000; border-radius: 10px; box-sizing: border-box; padding-left: 10px;">
                     </div>
                 </div>
+                <div class="d-flex align-items-start mb-3" style="padding-bottom: 33px; margin-bottom: 0">
+                <label for="point-select1">사용할 쿠폰:</label>
+                <select id="point-select1" name="cnum">
+                    <option th:each="coupon : ${couponList}" th:value="${coupon.id}" th:text="${coupon.name}">
+                    </option>
+                </select>
+                </div>
                 <hr style="all: unset; display: block; width: 100%; height: 1px; background-color: #000000; border: none; padding: 0; margin-bottom: 41px">
 
                 <div style="display: flex; justify-content: flex-end; margin-top: 10px;">

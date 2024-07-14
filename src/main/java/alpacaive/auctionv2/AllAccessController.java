@@ -3,10 +3,12 @@ package alpacaive.auctionv2;
 import alpacaive.auctionv2.auction.Auction;
 import alpacaive.auctionv2.auction.AuctionDto;
 import alpacaive.auctionv2.auction.AuctionService;
+import alpacaive.auctionv2.event.EventDto;
 import alpacaive.auctionv2.event.EventService;
 import alpacaive.auctionv2.member.MemberService;
 import alpacaive.auctionv2.product.Product;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +28,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/all")
+@Slf4j
 public class AllAccessController {
 
 	@Autowired
@@ -134,6 +137,9 @@ public class AllAccessController {
 	@GetMapping("/eventlist")
 	public String list(ModelMap map) {
 		map.addAttribute("list", eservice.getAll());
+		for (EventDto eventDto: eservice.getAll()){
+            log.debug("eventDto: {}", eventDto.getTitle());
+		}
 		return "event/list";
 	}
 

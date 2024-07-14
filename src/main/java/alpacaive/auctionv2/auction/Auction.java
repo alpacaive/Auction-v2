@@ -50,7 +50,6 @@ public class Auction {
     private int bcnt;
     @ManyToOne
     private Member mino;
-    
     public enum Type {
         NORMAL, BLIND, EVENT
     }

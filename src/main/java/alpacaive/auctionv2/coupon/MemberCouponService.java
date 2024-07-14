@@ -23,19 +23,24 @@ public class MemberCouponService {
     private final CouponDao couponDao;
 
     //회원에게 쿠폰 발급
-    public void create(long coupon_id, String member_id) {
+    @Transactional
+    public synchronized void create(long coupon_id, String member_id) {
+        if (memberCouponDao.findByCouponIdAndMemberId(coupon_id, member_id) != null) {
+            return;
+        }
         Optional<Member> byId = Optional.of(memberDao.findById(member_id).orElseThrow());
         Member member = byId.get();
-        Optional<Coupon> findCoupon = Optional.of(couponDao.findById(coupon_id).orElseThrow());
+        Optional<Coupon> findCoupon = Optional.of(couponDao.findById(coupon_id));
         Coupon coupon = findCoupon.get();
+        log.debug("coupon_amount {}", coupon.getAmount());
         if (coupon.getAmount()==0){
             log.debug("물량이 없습니다.");
             return;
         }
         MemberCoupon newCoupon = MemberCoupon.create(member, coupon);
+        discountCoupon(coupon_id);
         memberCouponDao.save(newCoupon);
         log.debug("Created coupon for member {}", member_id);
-        discountCoupon(coupon_id);
     }
 
     //내 쿠폰 목록 검색
@@ -64,7 +69,7 @@ public class MemberCouponService {
 
     //쿠폰재고 감소
     public void discountCoupon(long coupon_id) {
-        Optional<Coupon> coupon = Optional.of(couponDao.findById(coupon_id).orElseThrow());
+        Optional<Coupon> coupon = Optional.of(couponDao.findById(coupon_id));
         coupon.get().discountAmount();
         int amount = coupon.get().getAmount();
         log.debug(String.valueOf(amount));

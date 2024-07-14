@@ -1,5 +1,6 @@
 package alpacaive.auctionv2.coupon;
 
+import alpacaive.auctionv2.event.Event;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,6 +31,8 @@ public class Coupon {
     private int amount;
     private Date end_date;
     private boolean isExpired;
+    @OneToOne(mappedBy = "cnum")
+    private Event event;
 
     @Builder
     public Coupon(String name, Integer discount, Date end_date, boolean isExpired, List<MemberCoupon> coupons) {

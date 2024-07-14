@@ -1,5 +1,6 @@
 package alpacaive.auctionv2.event;
 
+import alpacaive.auctionv2.coupon.Coupon;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,7 +16,7 @@ public class EventDto {
     private String title;
     private String close;
     private String status;
-    private String cnum;
+    private Coupon cnum;
     private MultipartFile f;
 
     public static EventDto create(Event event) {
@@ -30,7 +31,7 @@ public class EventDto {
     }
 
     @Builder
-    public EventDto(int num, String img, String title, String close, String status, String cnum, MultipartFile f) {
+    public EventDto(int num, String img, String title, String close, String status, Coupon cnum, MultipartFile f) {
         this.num = num;
         this.img = img;
         this.title = title;
