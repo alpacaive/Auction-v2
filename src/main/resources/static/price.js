@@ -11,11 +11,10 @@ stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
     stompClient.subscribe('/sub/bid', (max) => {
 		let response=JSON.parse(max.body);
-		alert(response.price);
-		alert(response.buyer);
 		if(response.parent == $('#num').val()){
 			if(response.buyer == buyer){
 				$('#bid').text('내가 입찰한 금액: ' + response.price);
+				alert("입찰 성공");
 			}
 			if(response.msg != null ){
 				if(response.mino != null){
