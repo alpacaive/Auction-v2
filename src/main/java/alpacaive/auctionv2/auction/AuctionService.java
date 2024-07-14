@@ -246,25 +246,30 @@ public class AuctionService {
 		return true;
 	}
 	
-	public synchronized boolean preBidsave(int parent) {
-		System.out.println(parent);
-		boolean flag=false;
+	public synchronized String preBidsave(int parent) {
+		AuctionDto auction=get(parent);
+		String bider=null;
 		Set<Object> prelist =zSetOperations.range(String.valueOf(parent), 0, -1);
-		System.out.println(prelist.size());
 		Object[] array=prelist.toArray();
-		System.out.println(array.length);
+		if(array.length<1) {
+			return null;
+		}
 		BidAddDto maxbid=(BidAddDto)array[0];
 		int max=maxbid.getPrice();
 		for(Object bid:array) {
 			BidAddDto rbid=(BidAddDto)bid;
 			if(max<rbid.getPrice()) {
+				System.out.println(max);
 				maxbid=rbid;  
-				flag=true;
 			}
 			zSetOperations.remove(String.valueOf(parent), rbid);
 		}
 		bservice.save(BidDto.create(maxbid));
-		return flag;
+		auction.setBcnt(auction.getBcnt() + 1);
+		auction.setMax(maxbid.getPrice());
+		save(auction);
+		bider=maxbid.getBuyer();
+		return bider;
 	}
 	public int normalBid(BidAddDto b) {
 		Member buyer = mdao.findById(b.getBuyer()).orElse(null); // 입찰자 검색
@@ -299,10 +304,9 @@ public class AuctionService {
 			messagingTemplate.convertAndSend("/sub/notice/list/" + pbuyer.getId(),
 			notificationRepository.findByName(pbuyer.getId())); // websocket으로 전달
 		}
-		adto.setBcnt(auction.getBcnt() + 1);
-		adto.setMax(b.getPrice());
-		save(adto);
-		if(preBidsave(auction.getNum())) {
+		String bider=preBidsave(auction.getNum());
+		if(bider!=null) {
+			buyer=mdao.findById(bider).orElse(null);
 			buyer.setPoint(buyer.getPoint()-b.getPrice());
 			mdao.save(buyer);
 		}
