@@ -19,7 +19,7 @@
     <!-- script
     ================================================== -->
     <script src="/js/modernizr.js"></script>
-    <title>alItem | 관리자 페이지</title>
+    <title>alItem | 마이페이지</title>
     <style>
         @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css");
 
@@ -195,7 +195,7 @@
             </form>
             <form action="/auth/auction/mybidauction" method="get">
                 <input type="hidden" name="buyer" th:value="${session.loginId}"/>
-                <button type="submit" class="custom-button">참여한 경매 목록</button>
+                <button type="submit" class="custom-button">입찰 기록</button>
             </form>
             <form th:action="@{/auth/member/point}" method="get">
                 <input type="hidden" name="id" th:value="${session.loginId}"/>
