@@ -7,10 +7,16 @@ const stompClient = new StompJs.Client({
 let flag=true;
 let time="";
 stompClient.onConnect = (frame) => {
+	let buyer = $("#buyer").val();
     console.log('Connected: ' + frame);
     stompClient.subscribe('/sub/bid', (max) => {
 		let response=JSON.parse(max.body);
+		alert(response.price);
+		alert(response.buyer);
 		if(response.parent == $('#num').val()){
+			if(response.buyer == buyer){
+				$('#bid').text('내가 입찰한 금액: ' + response.price);
+			}
 			if(response.msg != null ){
 				if(response.mino != null){
 					window.location.href = '/auth/auction/event?mino='+response.mino;

@@ -472,7 +472,7 @@ img5: <img th:if="${s.product.img5 != null}" th:src="@{/auth/prod/read-img(img=$
                     <h5>이 경매에 참여하지 않으셨습니다.</h5>
                 </div>
                 <div th:if="${bid != null}" style="margin-bottom: 36px">
-                    <h5 th:text="'내가 입찰한 금액: ' + ${bid.price}"></h5>
+                    <h5 th:text="'내가 입찰한 금액: ' + ${bid.price}" id=""></h5>
                 </div>
             </div>
             <hr style="all: unset; display: block; width: 100%; height: 1px; background-color: #000000; border: none; padding: 0; margin-bottom: 36px; margin-top: 36px">

@@ -68,6 +68,7 @@ public class AuctionController {
 	public Map send(BidAddDto b) throws InterruptedException {
 		Map map=new HashMap();
 		map.put("parent", b.getParent());
+		map.put("buyer", b.getBuyer());
 		int setMax=0;
 		switch(aservice.get(b.getParent()).getType()) {
 		case NORMAL:

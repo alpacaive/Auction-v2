@@ -309,8 +309,10 @@ public class AuctionService {
 			buyer=mdao.findById(bider).orElse(null);
 			buyer.setPoint(buyer.getPoint()-b.getPrice());
 			mdao.save(buyer);
-		}
-		return adto.getMax();
+			auction = dao.findById(b.getParent()).orElse(null);
+			return auction.getMax();
+		}		
+		return 0;
 	}
 
 	public int blindBid(BidAddDto b) {
