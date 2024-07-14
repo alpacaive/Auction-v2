@@ -257,7 +257,7 @@ public class AuctionService {
 		for(Object bid:array) {
 			BidAddDto rbid=(BidAddDto)bid;
 			if(max<rbid.getPrice()) {
-				maxbid=rbid;
+				maxbid=rbid; 
 			}
 			zSetOperations.remove(String.valueOf(parent), rbid);
 		}
