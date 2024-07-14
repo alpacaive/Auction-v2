@@ -51,7 +51,9 @@ public class MemberCouponService {
         }
         List<Coupon> couponList = new ArrayList<>();
         for (MemberCoupon mc : member.get().getMember()) {
-            couponList.add(mc.getCoupon());
+            if (!mc.isUsed()) {
+                couponList.add(mc.getCoupon());
+            }
             log.debug("Found coupon for member {}", mc.getCoupon().getDiscount());
         }
         return couponList;
