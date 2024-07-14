@@ -246,8 +246,9 @@ public class AuctionService {
 		return true;
 	}
 	
-	public synchronized void preBidsave(int parent) {
+	public synchronized boolean preBidsave(int parent) {
 		System.out.println(parent);
+		boolean flag=false;
 		Set<Object> prelist =zSetOperations.range(String.valueOf(parent), 0, -1);
 		System.out.println(prelist.size());
 		Object[] array=prelist.toArray();
@@ -258,10 +259,12 @@ public class AuctionService {
 			BidAddDto rbid=(BidAddDto)bid;
 			if(max<rbid.getPrice()) {
 				maxbid=rbid;  
+				flag=true;
 			}
 			zSetOperations.remove(String.valueOf(parent), rbid);
 		}
 		bservice.save(BidDto.create(maxbid));
+		return flag;
 	}
 	public int normalBid(BidAddDto b) {
 		Member buyer = mdao.findById(b.getBuyer()).orElse(null); // 입찰자 검색
@@ -299,7 +302,10 @@ public class AuctionService {
 		adto.setBcnt(auction.getBcnt() + 1);
 		adto.setMax(b.getPrice());
 		save(adto);
-		preBidsave(auction.getNum());
+		if(preBidsave(auction.getNum())) {
+			buyer.setPoint(buyer.getPoint()-b.getPrice());
+			mdao.save(buyer);
+		}
 		return adto.getMax();
 	}
 
