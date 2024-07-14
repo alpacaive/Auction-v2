@@ -275,7 +275,10 @@ public class AuctionService {
 		}
 		if (buyer.getPoint() < b.getPrice()) { // 일찰자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
 			return -1;
-		}		
+		}
+		if(auction.getMax()>=b.getPrice()) {
+			return 0;
+		}
 		int getPoint=0;
 		BidDto maxValue=null;
 		try {
