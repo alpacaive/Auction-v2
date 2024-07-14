@@ -45,7 +45,7 @@ class MemberCouponServiceTest {
     @Rollback(value = false)
     void 쿠폰재고감소(){
         memberCouponService.create(1L,"aaa");
-        Optional<Coupon> byId = Optional.of(couponDao.findById(1L).orElseThrow());
+        Optional<Coupon> byId = Optional.of(couponDao.findById(1L));
         assertEquals(byId.get().getAmount(), 0);
     }
 }

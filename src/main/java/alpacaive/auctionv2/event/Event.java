@@ -1,5 +1,6 @@
 package alpacaive.auctionv2.event;
 
+import alpacaive.auctionv2.coupon.Coupon;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +20,9 @@ public class Event {
     private String title;
     private String close;
     private String status;
-    private String cnum;
+    @OneToOne
+//    @JoinColumn(name = "event")
+    private Coupon cnum;
 
     public static Event create(EventDto dto) {
         return Event.builder()
@@ -33,7 +36,7 @@ public class Event {
     }
 
     @Builder
-    public Event(int num, String img, String title, String close, String status, String cnum) {
+    public Event(int num, String img, String title, String close, String status, Coupon cnum) {
         this.num = num;
         this.img = img;
         this.title = title;

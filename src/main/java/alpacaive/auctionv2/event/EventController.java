@@ -1,5 +1,8 @@
 package alpacaive.auctionv2.event;
 
+import alpacaive.auctionv2.coupon.CouponDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -11,16 +14,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/auth/event")
 public class EventController {
 
+    private static final Logger log = LoggerFactory.getLogger(EventController.class);
     @Autowired
     private EventService eservice;
+    @Autowired
+    private CouponDao couponDao;
 
     @GetMapping("/add")
-    public String addForm() {
+    public String addForm(ModelMap model) {
+        model.addAttribute("couponList", couponDao.findAll());
         return "event/add";
     }
 
     @PostMapping("/add")
     public String add(EventDto dto) {
+        dto.setStatus("진행중");
+        log.info("Adding event {}", dto.getCnum());
         eservice.save(dto);
         return "redirect:/all/eventlist";
     }
