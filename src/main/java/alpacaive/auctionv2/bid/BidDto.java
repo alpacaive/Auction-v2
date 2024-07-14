@@ -4,15 +4,15 @@ import alpacaive.auctionv2.auction.Auction;
 import alpacaive.auctionv2.member.Member;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @ToString
-public class BidDto {
-
-	    private int num;
+public class BidDto implements Serializable{
+		private int num;
 	    private Auction parent;
 	    private Member buyer;
 	    private int price;
@@ -25,6 +25,15 @@ public class BidDto {
 	    			.parent(b.getParent())
 	    			.buyer(b.getBuyer())
 	    			.price(b.getPrice())
+	    			.build();
+	    }
+	    public static BidDto create(BidAddDto dto) {
+	    	return BidDto.builder()
+	    			.num(dto.getNum())
+	    			.parent(new Auction(dto.getParent()))
+	    			.buyer(new Member(dto.getBuyer()))
+	    			.price(dto.getPrice())
+	    			.bidtime(dto.getBidtime())
 	    			.build();
 	    }
 

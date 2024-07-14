@@ -1,22 +1,34 @@
 package alpacaive.auctionv2.auction;
 
+import java.io.Serializable;
+import java.util.Date;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import alpacaive.auctionv2.member.Member;
 import alpacaive.auctionv2.product.Product;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.SequenceGenerator;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
-import java.util.Date;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @ToString
-public class Auction {
+public class Auction implements Serializable {
 
     @Id
     @SequenceGenerator(name = "seq_auction", sequenceName = "seq_auction", allocationSize = 1)

@@ -20,9 +20,9 @@ public interface BidDao extends JpaRepository<Bid, Integer> {
 	ArrayList<Bid>findByParentOrderByNumDesc(Auction parent);
 	@Query("select b from Bid b where b.parent.num = :parent order by b.price desc")
 	ArrayList<Bid> findByBuyerByPrice(int parent);
-	@Lock(LockModeType.PESSIMISTIC_READ)
+//	@Lock(LockModeType.PESSIMISTIC_READ)
 	@Query("SELECT b FROM Bid b WHERE b.price = (SELECT MAX(b2.price) FROM Bid b2 WHERE b2.parent.num = :parent)")
-	Optional<Bid> findMaxValue(@Param("parent") int parent);
+	Bid findMaxValue(@Param("parent") int parent);
 	
 	ArrayList<Bid> findByBuyerOrderByNumDesc(Member buyer);
 }

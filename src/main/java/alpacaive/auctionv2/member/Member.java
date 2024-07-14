@@ -1,14 +1,24 @@
 package alpacaive.auctionv2.member;
 
-import alpacaive.auctionv2.card.Card;
-import alpacaive.auctionv2.coupon.Coupon;
-import alpacaive.auctionv2.coupon.MemberCoupon;
-import jakarta.persistence.*;
-import lombok.*;
+import java.io.Serializable;
+import java.util.List;
+
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.List;
+import alpacaive.auctionv2.card.Card;
+import alpacaive.auctionv2.coupon.MemberCoupon;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 
 @Entity
@@ -16,7 +26,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @ToString
-public class Member {
+public class Member implements Serializable {
 
     @Id
     private String id;

@@ -1,12 +1,14 @@
 package alpacaive.auctionv2.auction;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +17,12 @@ import alpacaive.auctionv2.bid.Bid;
 import alpacaive.auctionv2.bid.BidAddDto;
 import alpacaive.auctionv2.bid.BidDao;
 import alpacaive.auctionv2.bid.BidDto;
-import alpacaive.auctionv2.exception.DuplecateBidException;
+import alpacaive.auctionv2.bid.BidService;
 import alpacaive.auctionv2.member.Member;
 import alpacaive.auctionv2.member.MemberDao;
 import alpacaive.auctionv2.notification.Notification;
 import alpacaive.auctionv2.notification.repository.NotificationRepository;
 import alpacaive.auctionv2.product.Product;
-
 
 @Service
 public class AuctionService {
@@ -36,8 +37,12 @@ public class AuctionService {
 	private SimpMessagingTemplate messagingTemplate;
 	@Autowired
 	private NotificationRepository notificationRepository;
+	@Autowired
+	private BidService bservice;
+	@Autowired
+	private ZSetOperations<String, Object> zSetOperations;
 
-	public void save(AuctionDto dto) {
+	public synchronized void save(AuctionDto dto) {
 		dao.save(Auction.create(dto));
 	}
 
@@ -45,10 +50,10 @@ public class AuctionService {
 	public void setTime(AuctionDto dto, int t) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dto.getStart_time());
-		int time = cal.get(Calendar.MINUTE);
-		cal.set(Calendar.MINUTE, t + time);
-//		int time = cal.get(Calendar.HOUR);
-//		cal.set(Calendar.HOUR, t + time);
+//		int time = cal.get(Calendar.MINUTE);
+//		cal.set(Calendar.MINUTE, t + time);
+		int time = cal.get(Calendar.HOUR);
+		cal.set(Calendar.HOUR, t + time);
 		dto.setEnd_time(cal.getTime());
 	}
 
@@ -240,59 +245,75 @@ public class AuctionService {
 		}
 		return true;
 	}
-	@Transactional(rollbackFor = Exception.class)
+	
+	public synchronized void preBidsave(int parent) {
+		System.out.println(parent);
+		Set<Object> prelist =zSetOperations.range(String.valueOf(parent), 0, -1);
+		System.out.println(prelist.size());
+		Object[] array=prelist.toArray();
+		System.out.println(array.length);
+		BidAddDto maxbid=(BidAddDto)array[0];
+		int max=maxbid.getPrice();
+		for(Object bid:array) {
+			BidAddDto rbid=(BidAddDto)bid;
+			if(max<rbid.getPrice()) {
+				maxbid=rbid;
+			}
+			zSetOperations.remove(String.valueOf(parent), rbid);
+		}
+		bservice.save(BidDto.create(maxbid));
+	}
 	public int normalBid(BidAddDto b) {
 		Member buyer = mdao.findById(b.getBuyer()).orElse(null); // 입찰자 검색
-		Auction auction = dao.findById(b.getParent()).orElse(null);  // 경매 검색
-		AuctionDto adto = AuctionDto.create(auction);  //경매 Dto생성
-		BidDto dto = new BidDto(b.getNum(), auction, buyer, b.getPrice(), new Date()); //입찰 dto 생성
-		if (dto.getBidtime().after(auction.getEnd_time())) {  // 경매 마감일시 입찰 취소
+		Auction auction = dao.findById(b.getParent()).orElse(null); // 경매 검색
+		AuctionDto adto = AuctionDto.create(auction); // 경매 Dto생성
+		BidDto dto = new BidDto(b.getNum(), auction, buyer, b.getPrice(), new Date()); // 입찰 dto 생성
+		long timestamp = Instant.now().toEpochMilli();
+		zSetOperations.add(String.valueOf(dto.getParent().getNum()),BidAddDto.create(Bid.create(dto)), timestamp);
+		if (dto.getBidtime().after(auction.getEnd_time())) { // 경매 마감일시 입찰 취소
 			return 0;
 		}
-		if (buyer.getPoint() < b.getPrice()) {  // 일차자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
+		if (buyer.getPoint() < b.getPrice()) { // 일찰자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
 			return -1;
+		}		
+		int getPoint=0;
+		BidDto maxValue=null;
+		try {
+			maxValue = bservice.getMaxByParent(b.getParent()); // 현재입찰정보 검색
+			getPoint=maxValue.getPrice();
+		}catch(Exception e) {
+			System.out.println(e);
 		}
-		if (b.getPrice() <= adto.getMax()) {  //입칠자의 입찰가가 현재가 보다 낮을시 입찰 취소
-			return -2;
+		if(maxValue!=null) {
+			Member pbuyer = mdao.findById(maxValue.getBuyer().getId()).orElse(null);
+			pbuyer.setPoint(pbuyer.getPoint() + getPoint);
+			mdao.save(pbuyer);
+			Notification notification = Notification.create(pbuyer.getId(), auction.getTitle(), "입찰을 뺏겼습니다"); // 전 입찰자에게 알림
+			notificationRepository.save(notification); // redis 저장
+			messagingTemplate.convertAndSend("/sub/notice/list/" + pbuyer.getId(),
+			notificationRepository.findByName(pbuyer.getId())); // websocket으로 전달
 		}
-		Optional<Bid> maxValue = Optional.ofNullable(bdao.findMaxValue(b.getParent()).orElseThrow(() ->
-                new DuplecateBidException()));  //현재입찰정보 검색
-		bdao.save(Bid.create(dto));
-		if (maxValue == null) {   // 현재 입찰자 없을시
-			buyer.setPoint(buyer.getPoint() - b.getPrice()); 
-			adto.setBcnt(auction.getBcnt() + 1);
-			adto.setMax(b.getPrice());
-			mdao.save(buyer);
-			dao.save(Auction.create(adto));
-			return adto.getMax();
-		}
-		int getPoint = maxValue.get().getPrice();   //현재 입찰자 있을시
-		Member pbuyer = mdao.findById(maxValue.get().getBuyer().getId()).orElse(null);
-		pbuyer.setPoint(pbuyer.getPoint() + getPoint);
 		adto.setBcnt(auction.getBcnt() + 1);
 		adto.setMax(b.getPrice());
-		dao.save(Auction.create(adto));
-		mdao.save(pbuyer);
-		Notification notification = Notification.create(pbuyer.getId(), auction.getTitle(), "입찰을 뺏겼습니다"); // 전 입찰자에게 알림
-		notificationRepository.save(notification); // redis 저장
-		messagingTemplate.convertAndSend("/sub/notice/list/" + pbuyer.getId(),notificationRepository.findByName(pbuyer.getId())); // websocket으로 전달
+		save(adto);
+		preBidsave(auction.getNum());
 		return adto.getMax();
 	}
-	
+
 	public int blindBid(BidAddDto b) {
 		Member buyer = mdao.findById(b.getBuyer()).orElse(null); // 입찰자 검색
-		Auction auction = dao.findById(b.getParent()).orElse(null);  // 경매 검색
-		AuctionDto adto = AuctionDto.create(auction);  //경매 Dto생성
-		BidDto dto = new BidDto(b.getNum(), auction, buyer, b.getPrice(), new Date()); //입찰 dto 생성
-		if (dto.getBidtime().after(auction.getEnd_time())) {  // 경매 마감일시 입찰 취소
+		Auction auction = dao.findById(b.getParent()).orElse(null); // 경매 검색
+		AuctionDto adto = AuctionDto.create(auction); // 경매 Dto생성
+		BidDto dto = new BidDto(b.getNum(), auction, buyer, b.getPrice(), new Date()); // 입찰 dto 생성
+		if (dto.getBidtime().after(auction.getEnd_time())) { // 경매 마감일시 입찰 취소
 			return 0;
 		}
-		if (buyer.getPoint() < b.getPrice()) {  // 일차자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
+		if (buyer.getPoint() < b.getPrice()) { // 일차자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
 			return -1;
 		}
-		buyer.setPoint(buyer.getPoint() - b.getPrice()); 
+		buyer.setPoint(buyer.getPoint() - b.getPrice());
 		adto.setBcnt(auction.getBcnt() + 1);
-		if(b.getPrice()>adto.getMax()) {
+		if (b.getPrice() > adto.getMax()) {
 			adto.setMax(b.getPrice());
 		}
 		bdao.save(Bid.create(dto));
@@ -300,26 +321,25 @@ public class AuctionService {
 		dao.save(Auction.create(adto));
 		return adto.getMin();
 	}
-	
+
 	public int eventBid(BidAddDto b) {
 		Member buyer = mdao.findById(b.getBuyer()).orElse(null); // 입찰자 검색
-		Auction auction = dao.findById(b.getParent()).orElse(null);  // 경매 검색
-		AuctionDto adto = AuctionDto.create(auction);  //경매 Dto생성
-		BidDto dto = new BidDto(b.getNum(), auction, buyer, b.getPrice(), new Date()); //입찰 dto 생성
-		if (dto.getBidtime().after(auction.getEnd_time())) {  // 경매 마감일시 입찰 취소
+		Auction auction = dao.findById(b.getParent()).orElse(null); // 경매 검색
+		AuctionDto adto = AuctionDto.create(auction); // 경매 Dto생성
+		BidDto dto = new BidDto(b.getNum(), auction, buyer, b.getPrice(), new Date()); // 입찰 dto 생성
+		if (dto.getBidtime().after(auction.getEnd_time())) { // 경매 마감일시 입찰 취소
 			return 0;
 		}
-		if (buyer.getPoint() < b.getPrice()) {  // 일차자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
+		if (buyer.getPoint() < b.getPrice()) { // 일차자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
 			return -1;
 		}
-		buyer.setPoint(buyer.getPoint() - b.getPrice()); 
+		buyer.setPoint(buyer.getPoint() - b.getPrice());
 		adto.setBcnt(auction.getBcnt() + 1);
-		adto.setMax(adto.getMax()+b.getPrice());
+		adto.setMax(adto.getMax() + b.getPrice());
 		bdao.save(Bid.create(dto));
 		mdao.save(buyer);
 		dao.save(Auction.create(adto));
 		return adto.getMax();
 	}
-	
 
 }

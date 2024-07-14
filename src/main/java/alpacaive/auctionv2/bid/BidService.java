@@ -2,7 +2,6 @@ package alpacaive.auctionv2.bid;
 
 import alpacaive.auctionv2.auction.Auction;
 import alpacaive.auctionv2.member.Member;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,15 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Slf4j
-@Transactional
 public class BidService {
 
 	@Autowired
 	private BidDao dao;
 	
-	
-	public String save(BidDto dto) {
+	@Transactional
+	public synchronized String save(BidDto dto) {
 		Bid b=dao.save(Bid.create(dto));
 		return b.toString();
 	}
@@ -61,5 +58,16 @@ public class BidService {
 			list.add(BidDto.create(b));
 		}
 		return list;
+	}
+	@Transactional
+	public synchronized BidDto getMaxByParent(int parent) {
+		Bid max=null;
+		try {
+			max = dao.findMaxValue(parent);
+		}catch(Exception e) {
+			System.err.println(e);
+		}
+		BidDto re=BidDto.create(max);
+		return re;
 	}
 }
