@@ -1,5 +1,6 @@
 package alpacaive.auctionv2.member;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -191,12 +192,8 @@ public class MemberController {
 			map.addAttribute("flag",true);
 			return "member/card";
 		}
-		if(!couponByMemberId.isEmpty()){
-			for (Coupon coupon : couponByMemberId) {
-				log.debug("coupon: {}", coupon.getDiscount());
-			}
 			map.addAttribute("myCouponList",couponByMemberId);
-		}
+
 		return "member/exchange";
 	}
 
@@ -238,15 +235,16 @@ public class MemberController {
 		return map;
 	}
 	@PostMapping("/auth/member/exchange")
-	public String exchange(HttpSession session,int point,ModelMap map,int discount) {
+	public String exchange(HttpSession session,int point,ModelMap map,Integer discount) {
 		String loginId = (String) session.getAttribute("loginId");
-		MemberCoupon memberCoupon = couponService.updateUsed(discount, loginId);
-		log.debug("discount: {}", memberCoupon);
-//		if(coupon!=null) {
-//			//쿠폰 적용 코드
-//		}
-		couponService.updateUsed(discount, (String) session.getAttribute("loginId"));
-		service.exchage(loginId,point, memberCoupon.getCoupon().getDiscount());
+		if(discount!=0) {
+			MemberCoupon memberCoupon = couponService.updateUsed(discount, loginId);
+			log.debug("discount: {}", memberCoupon);
+			service.exchage(loginId,point, memberCoupon.getCoupon().getDiscount());
+			couponService.updateUsed(discount, (String) session.getAttribute("loginId"));
+			return "index_member";
+		}
+		service.exchage(loginId,point, 0);
 		return "index_member";
 	}
 }
