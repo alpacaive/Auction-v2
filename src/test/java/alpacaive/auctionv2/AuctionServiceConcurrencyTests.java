@@ -36,11 +36,11 @@ public class AuctionServiceConcurrencyTests {
     private AuctionService auctionService;
 
     @Test
-    public void testConcurrentBidding() throws InterruptedException {
-        Auction auction = dao.findById(21).orElse(null);
+    public void 입찰동시성테스트() throws InterruptedException {
+        Auction auction = dao.findById(1).orElse(null);
 //        System.out.println(auction);
-        BidAddDto bidDto = new BidAddDto(0,21,"aaa",40,null); // 유효한 입찰 정보
-        BidAddDto bidDto2 = new BidAddDto(0,21,"ccc",41,null); // 유효한 입찰 정보
+        BidAddDto bidDto = new BidAddDto(0,1,"ddd",15100,null); // 유효한 입찰 정보
+        BidAddDto bidDto2 = new BidAddDto(0,1,"sss",15300,null); // 유효한 입찰 정보
 //        BidAddDto bidDto3 = new BidAddDto(0,21,"ccc",33,null); // 유효한 입찰 정보
 
         // 동시성 테스트를 위한 ExecutorService 설정
@@ -52,7 +52,7 @@ public class AuctionServiceConcurrencyTests {
 
         executorService.submit(() -> {
         	try {
-            auctionService.normalBid(bidDto);
+            auctionService.normalBid(bidDto); 
         	}catch(Exception e) {
         		System.out.println(e);
         	}
@@ -80,7 +80,7 @@ public class AuctionServiceConcurrencyTests {
 
         // 최종 확인
         Auction updatedAuction = dao.findById(auction.getNum()).orElse(null);
-        assertEquals(41, updatedAuction.getMax()); // 
+        assertEquals(15300, updatedAuction.getMax()); // 
 
         executorService.shutdown();
     }

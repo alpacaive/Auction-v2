@@ -314,7 +314,7 @@ public class AuctionService {
 		}		
 		return 0;
 	}
-
+ 
 	public int blindBid(BidAddDto b) {
 		Member buyer = mdao.findById(b.getBuyer()).orElse(null); // 입찰자 검색
 		Auction auction = dao.findById(b.getParent()).orElse(null); // 경매 검색

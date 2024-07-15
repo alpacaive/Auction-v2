@@ -135,8 +135,8 @@ public class ProductController {
     public String del(int num) {
         ProductDto p = service.getProd(num);
         service.delProd(num);
-        File f = new File(path + p.getImg1());
-        f.delete();
+//        File f = new File(path + p.getImg1());
+//        f.delete();
         return "redirect:/";
     }
 

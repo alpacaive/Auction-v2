@@ -102,6 +102,9 @@ public class MemberService {
 		CardDto card = CardDto.create(member.getCardnum());
 		int feepoint=member.getFee(point);
 		card.setPrice(card.getPrice()+feepoint);
+		if(member.getPoint()<point) {
+			return;
+		}
 		member.setPoint(member.getPoint()-point);
 		dao.save(Member.create(member));
 		cdao.save(Card.create(card));

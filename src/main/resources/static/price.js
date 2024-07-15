@@ -14,7 +14,6 @@ stompClient.onConnect = (frame) => {
 		if(response.parent == $('#num').val()){
 			if(response.buyer == buyer){
 				$('#bid').text('내가 입찰한 금액: ' + response.price);
-				alert("입찰 성공");
 			}
 			if(response.msg != null ){
 				if(response.mino != null){
