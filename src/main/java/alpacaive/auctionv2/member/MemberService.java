@@ -1,6 +1,5 @@
 package alpacaive.auctionv2.member;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import alpacaive.auctionv2.member.exception.MemberNotFoundException;
@@ -40,6 +39,12 @@ public class MemberService {
 		dao.save(user);
 	}
 
+	// 카드 등록
+	public void cardEdit(Member m) {
+		m.withCard(m.getCardnum());
+		dao.save(m);
+	}
+
 	// id로 검색
 	public MemberDto getUser(String id) {
 		Member u = dao.findById(id).orElseThrow(()->new MemberNotFoundException("회원이 없습니다."));
@@ -55,6 +60,9 @@ public class MemberService {
 	// 상위 10명 순위
 	public List<MemberDto> getRank() {
 		List<Member> l = dao.findAllByOrderByExpDesc();
+		if (l.size() <= 10) {
+			return Member.toList(l);
+		}
 		return Member.toList(l).subList(0, 10);
 	}
 
@@ -70,16 +78,10 @@ public class MemberService {
 		dao.save(Member.from(member));
 	}
 	
-	public void getRanker(){
-		ArrayList<Member> l=dao.findAllByOrderByExpDesc();
-		ArrayList<MemberDto>list=new ArrayList<>();
-		MemberDto m1=MemberDto.from(l.get(0));
-		m1.setPoint(m1.getPoint()+10000);     // 1등
-		MemberDto m2=MemberDto.from(l.get(1));
-		m1.setPoint(m2.getPoint()+5000);   // 2등
-		MemberDto m3=MemberDto.from(l.get(2));
-		m1.setPoint(m3.getPoint()+3000);   // 3등
-		return;
+	public List<Member> getRanker(){
+		List<Member> l = dao.findAllByOrderByExpDesc();
+		Member.Ranker(l);
+		return l;
 	}
 
 	public boolean idCheck(String id) {

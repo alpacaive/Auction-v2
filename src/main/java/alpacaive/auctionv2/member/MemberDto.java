@@ -6,7 +6,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToOne;
 import lombok.*;
 
-@Setter
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @ToString
@@ -82,4 +83,5 @@ public class MemberDto {
         card.updatePrice(getFee(point));
         this.cardnum = Card.create(card);
     }
+
 }
