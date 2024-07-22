@@ -32,7 +32,7 @@ public class AuctionScheduler {
 
 
 //	@Scheduled(cron = "0 0/1 * * * *") // 매 1분에 실행
-	@Scheduled(fixedRate = 10000)
+	@Scheduled(fixedRate = 1000000000)
 	public void setStatus() {
 		Date date = new Date();
 		ArrayList<AuctionDto> list = service.getByStatus("경매중"); // 경매중인 list
@@ -51,7 +51,7 @@ public class AuctionScheduler {
 						for (BidDto dto : buylist) {
 							if (dto.getPrice() != auction.getMax() && flag) {  // 리스트 중에서 auction의 최종낙찰가와 같으면서 flag true인 입찰을 찾음
 								Member loser = dto.getBuyer();   // 경매에서 입찰 받지 못한 loser들
-								loser.setPoint(loser.getPoint() + dto.getPrice()); //의 포인트 반환
+//								loser.setPoint(loser.getPoint() + dto.getPrice()); //의 포인트 반환
 							}
 							byBuyer.setBuyer(dto.getBuyer());  //최종 낙찰자설정
 							flag = false; // 최종 낙찰자 설정시 flag를 flase로 만들어 같은 가격으로 입찰한 사람들에게 포인트 반환하기 위한 코드
@@ -103,9 +103,9 @@ public class AuctionScheduler {
 					notificationRepository.save(mino); // 최종 낙찰자 저장
 					messagingTemplate.convertAndSend("/sub/notice/list/"+auction.getMino().getId(), notificationRepository.findByName(auction.getMino().getId())); // 최종 낙찰자에게 알림
 					System.out.println(1);
-					seller.setPoint(seller.getPoint() + auction.getMax()); // 판매자에게 낙찰금 전달
+//					seller.setPoint(seller.getPoint() + auction.getMax()); // 판매자에게 낙찰금 전달
 					System.out.println(2);
-					mservice.edit(MemberDto.create(seller)); // 판매자 포인트 db에 저장하기 위한 코드
+//					mservice.edit(MemberDto.create(seller)); // 판매자 포인트 db에 저장하기 위한 코드
 					System.out.println(3);
 					System.out.println(auction.getMino()+"낙찰자1");
 					service.save(auction); //모든 경매 정보 db에 저장

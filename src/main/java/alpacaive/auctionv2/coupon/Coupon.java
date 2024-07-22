@@ -35,7 +35,8 @@ public class Coupon {
     private Event event;
 
     @Builder
-    public Coupon(String name, Integer discount, Date end_date, boolean isExpired, List<MemberCoupon> coupons) {
+    public Coupon(long id,String name, Integer discount, Date end_date, boolean isExpired, List<MemberCoupon> coupons) {
+        this.id = id;
         this.name = name;
         this.discount = discount;
         this.end_date = end_date;
