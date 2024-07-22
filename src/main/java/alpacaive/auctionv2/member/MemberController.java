@@ -8,10 +8,7 @@ import alpacaive.auctionv2.coupon.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import alpacaive.auctionv2.auction.Auction;
@@ -49,8 +46,8 @@ public class MemberController {
 
 	// 회원가입 폼
 	@PostMapping("/join")
-	public String join(MemberDto u) {
-		service.save(u);
+	public String join( MemberDto f) {
+		service.save(f);
 		return "redirect:/";
 	}
 
@@ -179,24 +176,16 @@ public class MemberController {
 	// 포인트 등록 폼
 	@PostMapping("/auth/member/point")
 	public String point(String id, String point, String customPoint, ModelMap map) {
-		MemberDto m = service.getUser(id);
-
+		Member m = service.getUser(id).toEntity();
 		//point가 한글일때 숫자가 아닐때 오류처리
 		if(point.equals("custom")){
-			m.setPoint(m.getPoint() + Integer.parseInt(customPoint));
-			m.setExp(m.getExp() + Integer.parseInt(customPoint));
+			m.updatePoint(m.getPoint()+Integer.parseInt(customPoint));
+			m.updateExp(m.getExp()+Integer.parseInt(customPoint));
 		}else {
-			m.setPoint(m.getPoint() + Integer.parseInt(point));
-			m.setExp(m.getExp() + Integer.parseInt(point));
+			m.updatePoint(m.getPoint() + Integer.parseInt(point));
+			m.updateExp(m.getExp() + Integer.parseInt(point));
 		}
-
-		if(m.getExp()>=1400000){
-			m.setGrade("Diamond");
-		}else if(m.getExp()>=400000){
-			m.setGrade("Gold");
-		}else if(m.getExp()>=100000){
-			m.setGrade("Silver");
-		}
+		m.updateGrade();
 		service.edit(m);
 		map.addAttribute("member", m);
 		return "member/point";
@@ -227,14 +216,10 @@ public class MemberController {
 		return map;
 	}
 	@PostMapping("/auth/member/exchange")
-	public String exchange(HttpSession session,int point,ModelMap map,Integer discount) {
+	public String exchange(HttpSession session,int point, int coupon_id) {
 		String loginId = (String) session.getAttribute("loginId");
-		if(discount!=0) {
-			MemberCoupon memberCoupon = couponService.updateUsed(discount, loginId);
-			log.debug("discount: {}", memberCoupon);
-			service.exchange(loginId,point);
-			couponService.updateUsed(discount, (String) session.getAttribute("loginId"));
-			return "index_member";
+		if(coupon_id!=0) {
+			couponService.updateUsed(coupon_id, (String) session.getAttribute("loginId")); // 쿠폰 사용 변경
 		}
 		service.exchange(loginId,point);
 		return "index_member";

@@ -54,16 +54,16 @@ public class MemberService {
 	// 전체검색: findAll()
 	public List<MemberDto> getAll() {
 		List<Member> l = dao.findAll();
-		return Member.toList(l);
+		return MemberDto.listOf(l);
 	}
 
 	// 상위 10명 순위
 	public List<MemberDto> getRank() {
 		List<Member> l = dao.findAllByOrderByExpDesc();
 		if (l.size() <= 10) {
-			return Member.toList(l);
+			return MemberDto.listOf(l);
 		}
-		return Member.toList(l).subList(0, 10);
+		return MemberDto.listOf(l).subList(0, 10);
 	}
 
 	// 삭제
@@ -88,4 +88,8 @@ public class MemberService {
 		Member u = dao.findById(id).orElse(null);
         return u == null;
     }
+
+	public void edit(Member member) {
+		dao.save(member);
+	}
 }
