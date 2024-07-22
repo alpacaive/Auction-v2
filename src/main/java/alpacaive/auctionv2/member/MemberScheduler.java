@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MemberSchduler {
+public class MemberScheduler {
 
 	@Autowired
 	private MemberService service;

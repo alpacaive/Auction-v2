@@ -1,6 +1,5 @@
 package alpacaive.auctionv2.member;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,30 +35,32 @@ public class MemberController {
 	@Autowired
 	private MemberCouponService couponService;
 
+	// 관리자 추가 페이지 -> 관리자 페이지에 있음
 	@GetMapping("/adjoin")
 	public String adjoinForm() {
 		return "member/adjoin";
 	}
 
+	// 회원가입 페이지 불러오기
 	@GetMapping("/join")
 	public String joinForm() {
 		return "member/login";
 	}
-	
+
+	// 회원가입 폼
 	@PostMapping("/join")
 	public String join(MemberDto u) {
-		
 		service.save(u);
 		return "redirect:/";
 	}
-	
+
+	// 로그인 폼 불러오기
 	@GetMapping("/loginform")
-	public String loginForm(String path,ModelMap map,HttpSession session,String msg) {
-		map.addAttribute("path",path);
-		map.addAttribute("msg",msg);
+	public String loginForm() {
 		return "member/login";
 	}
 
+	// 로그인 폼, index에 List 리스트 띄워주기 위해 map에 넣음
 	@RequestMapping("/auth/login")
 	public String alogin(ModelMap map) {
 		map.addAttribute("HBA",aservice.getAllByBids("경매중"));
@@ -81,12 +82,14 @@ public class MemberController {
 		return "index_member";
 	}
 
+	// 로그아웃
 	@RequestMapping("/auth/logout")
 	public String logout(HttpSession session) {
 		session.invalidate();
 		return "redirect:/";
 	}
 
+	// 회원 삭제 -> 관리자 권한
 	@RequestMapping("/auth/out")
 	public String out(String id, ModelMap map) {
 		service.delMember(id);
@@ -94,40 +97,26 @@ public class MemberController {
 		return "member/list";
 	}
 
+	// 회원 목록 -> 관리자 권한
 	@RequestMapping("/auth/member/list")
 	public String list(ModelMap map) {
 		map.addAttribute("list",service.getAll());
 		return "member/list";
 	}
 
-	@GetMapping("/auth/member/edit")
-	public String editform(String id, ModelMap map) {
-		MemberDto m = service.getUser(id);
-		map.addAttribute("m", m);
-		return "member/edit";
-	}
-
-	@PostMapping("/auth/member/edit")
-	public String edit(MemberDto m) {
-
-		// 이건 뭐냐
-		service.editByNameAndEmail(m);
-		return "redirect:/auth/member/list";
-	}
-
+	// 내 정보 및 수정 페이지 불러오기
 	@GetMapping("/auth/member/edit2")
-	public ModelAndView editform2(String id) {
+	public ModelAndView editForm(String id) {
 		MemberDto m = service.getUser(id);
 		ModelAndView mav = new ModelAndView("member/edit");
 		mav.addObject("m", m);
 		return mav;
 	}
 
+	// 내 정보 및 수정 폼
 	@PostMapping("/auth/member/edit2")
-	public String edit2(MemberDto m) {
+	public String edit(MemberDto m) {
 		MemberDto d = service.getUser(m.getId());
-		d.setName(m.getName());
-		d.setEmail(m.getEmail());
 		if(!m.getPwd().isEmpty()) {
 			service.save(d);
 			return "/index_member";
@@ -136,19 +125,20 @@ public class MemberController {
 		return "/index_member";
 	}
 
+	// 카드 등록 페이지 불러오기
 	@GetMapping("/auth/member/card")
-	public String cardform(String id, ModelMap map) {
+	public String cardForm(String id, ModelMap map) {
 		MemberDto m = service.getUser(id);
-		if(m.getCardnum()!=null){
+		if(m.getCardnum()!=null){ // 등록한 카드가 있을 때
 			map.addAttribute("flag",false);
-		}
-		else{
+		} else{ // 등록한 카드가 없을 때
 			map.addAttribute("flag",true);
 		}
 		map.addAttribute("member", m);
 		return "member/card";
 	}
 
+	// 카드 등록 폼
 	@PostMapping("/auth/member/card")
 	public String card(CardDto dto, String id, ModelMap map) {
 		//일치하는 카드 가져오기
@@ -160,12 +150,11 @@ public class MemberController {
 			map.addAttribute("member", m);
 			return "member/card";
 		}
-		log.debug("c: {}", c);
-		log.debug("m: {}", m);
-		m.setCardnum(Card.create(c));
+		Member entity = m.toEntity();
+		entity.addCardNum(Card.create(c));
 		//같은카드를 두명이서 등록하면 오류 발생
 		try {
-//			service.edit(m);
+			service.cardEdit(entity);
 		}catch(Exception e){
 			map.addAttribute("msg","이미 등록된 카드입니다.");
 			map.addAttribute("flag",true);
@@ -175,6 +164,7 @@ public class MemberController {
 		return "redirect:/auth/member/card?id="+id;
 	}
 
+	// 포인트 충전 페이지 불러오기
 	@GetMapping("/auth/member/point")
 	public String pointform(String id, ModelMap map) {
 		MemberDto m = service.getUser(id);
@@ -185,24 +175,12 @@ public class MemberController {
 		}
 		return "member/point";
 	}
-	@GetMapping("/auth/member/exchange")
-	public String exchangeform(String id, ModelMap map) {
-		MemberDto m = service.getUser(id);
-		List<Coupon> couponByMemberId = couponService.findCouponByMemberId(id);
-		map.addAttribute("member", m);
-		if(m.getCardnum() == null) {
-			map.addAttribute("flag",true);
-			return "member/card";
-		}
-			map.addAttribute("myCouponList",couponByMemberId);
 
-		return "member/exchange";
-	}
-
+	// 포인트 등록 폼
 	@PostMapping("/auth/member/point")
 	public String point(String id, String point, String customPoint, ModelMap map) {
 		MemberDto m = service.getUser(id);
-		
+
 		//point가 한글일때 숫자가 아닐때 오류처리
 		if(point.equals("custom")){
 			m.setPoint(m.getPoint() + Integer.parseInt(customPoint));
@@ -219,10 +197,26 @@ public class MemberController {
 		}else if(m.getExp()>=100000){
 			m.setGrade("Silver");
 		}
-//		service.edit(m);
+		service.edit(m);
 		map.addAttribute("member", m);
 		return "member/point";
 	}
+
+	@GetMapping("/auth/member/exchange")
+	public String exchangeform(String id, ModelMap map) {
+		MemberDto m = service.getUser(id);
+		List<Coupon> couponByMemberId = couponService.findCouponByMemberId(id);
+		map.addAttribute("member", m);
+		if(m.getCardnum() == null) {
+			map.addAttribute("flag",true);
+			return "member/card";
+		}
+			map.addAttribute("myCouponList",couponByMemberId);
+
+		return "member/exchange";
+	}
+
+
 
 	@ResponseBody
 	@GetMapping("/idcheck")

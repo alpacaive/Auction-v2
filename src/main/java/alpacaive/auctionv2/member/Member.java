@@ -90,11 +90,36 @@ public class Member implements Serializable {
 		this.email = email;
 	}
 
+	public void withCard(Card cardNum) {
+		this.cardnum = cardNum;
+	}
+
 	public static List<MemberDto> toList(List<Member> l){
 		List<MemberDto> list = new ArrayList<>();
 		for (Member member : l) {
 			list.add(MemberDto.from(member));
 		}
 		return list;
+	}
+
+	// 포인트 주는 메서드
+	public void givePoint(String id, int point) {
+		this.id = id;
+		this.point += point;
+	}
+
+	// 달마다 랭커 포인트 지급
+	public static void Ranker(List<Member> list) {
+		Member first = list.get(0);
+		first.givePoint(first.getId(), 10000); // 1등
+		Member second = list.get(1);
+		second.givePoint(second.getId(), 5000); // 2등
+		Member third = list.get(2);
+		third.givePoint(third.getId(), 3000); // 3등
+
+	}
+
+	public void addCardNum(Card card) {
+		this.cardnum = card;
 	}
 }
