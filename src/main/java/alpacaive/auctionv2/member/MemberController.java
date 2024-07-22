@@ -109,7 +109,9 @@ public class MemberController {
 
 	@PostMapping("/auth/member/edit")
 	public String edit(MemberDto m) {
-		service.edit(m);
+
+		// 이건 뭐냐
+		service.editByNameAndEmail(m);
 		return "redirect:/auth/member/list";
 	}
 
@@ -130,7 +132,7 @@ public class MemberController {
 			service.save(d);
 			return "/index_member";
 		}
-		service.edit(d);
+		service.editByNameAndEmail(d);
 		return "/index_member";
 	}
 
@@ -163,7 +165,7 @@ public class MemberController {
 		m.setCardnum(Card.create(c));
 		//같은카드를 두명이서 등록하면 오류 발생
 		try {
-			service.edit(m);
+//			service.edit(m);
 		}catch(Exception e){
 			map.addAttribute("msg","이미 등록된 카드입니다.");
 			map.addAttribute("flag",true);
@@ -211,26 +213,22 @@ public class MemberController {
 		}
 
 		if(m.getExp()>=1400000){
-			m.setRank("Diamond");
+			m.setGrade("Diamond");
 		}else if(m.getExp()>=400000){
-			m.setRank("Gold");
+			m.setGrade("Gold");
 		}else if(m.getExp()>=100000){
-			m.setRank("Silver");
+			m.setGrade("Silver");
 		}
-		service.edit(m);
+//		service.edit(m);
 		map.addAttribute("member", m);
 		return "member/point";
 	}
 
 	@ResponseBody
 	@GetMapping("/idcheck")
-	public Map idcheck(String id) {
-		Map map = new HashMap();
-		MemberDto u = service.getUser(id);
-		boolean flag = false;
-		if (u == null) {
-			flag = true;
-		}
+	public Map<String, Boolean> idcheck(String id) {
+		Map<String, Boolean> map = new HashMap();
+		boolean flag = service.idCheck(id);
 		map.put("flag", flag);
 		return map;
 	}
@@ -240,11 +238,11 @@ public class MemberController {
 		if(discount!=0) {
 			MemberCoupon memberCoupon = couponService.updateUsed(discount, loginId);
 			log.debug("discount: {}", memberCoupon);
-			service.exchage(loginId,point, memberCoupon.getCoupon().getDiscount());
+			service.exchange(loginId,point);
 			couponService.updateUsed(discount, (String) session.getAttribute("loginId"));
 			return "index_member";
 		}
-		service.exchage(loginId,point, 0);
+		service.exchange(loginId,point);
 		return "index_member";
 	}
 }
