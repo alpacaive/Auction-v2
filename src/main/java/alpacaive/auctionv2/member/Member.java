@@ -1,19 +1,15 @@
 package alpacaive.auctionv2.member;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import alpacaive.auctionv2.card.Card;
 import alpacaive.auctionv2.coupon.MemberCoupon;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +18,6 @@ import lombok.ToString;
 
 
 @Entity
-@Setter
 @Getter
 @NoArgsConstructor
 @ToString
@@ -30,18 +25,17 @@ public class Member implements Serializable {
 
     @Id
     private String id;
-
     private String pwd;
     private String name;
     private String email;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@OnDelete(action = OnDeleteAction.CASCADE)
     private Card cardnum;
 
     private int point;
 
-    private String rank;
+    private String grade;
 
     private int exp;
 
@@ -51,12 +45,12 @@ public class Member implements Serializable {
 	private List<MemberCoupon> member;
 	@PrePersist
 	public void prePersist() {
-		if (this.rank == null) {
-			this.rank = "Bronze";
+		if (this.grade == null) {
+			this.grade = "Bronze";
 		}
 	}
     
-    public static Member create(MemberDto dto) {
+    public static Member from(MemberDto dto) {
     	return Member.builder()
     			.id(dto.getId())
     			.pwd(dto.getPwd())
@@ -64,14 +58,14 @@ public class Member implements Serializable {
     			.email(dto.getEmail())
     			.cardnum(dto.getCardnum())
     			.point(dto.getPoint())
-    			.rank(dto.getRank())
+    			.grade(dto.getGrade())
     			.exp(dto.getExp())
     			.type(dto.getType())
     			.build();
     }
 
     @Builder
-	public Member(String id, String pwd, String name, String email, Card cardnum, int point, String rank, int exp,
+	public Member(String id, String pwd, String name, String email, Card cardnum, int point, String grade, int exp,
 				  String type) {
 		this.id = id;
 		this.pwd = pwd;
@@ -79,11 +73,28 @@ public class Member implements Serializable {
 		this.email = email;
 		this.cardnum = cardnum;
 		this.point = point;
-		this.rank = rank;
+		this.grade = grade;
 		this.exp = exp;
 		this.type = type;
 	}
 	public Member(String id) {
 		this.id=id;
+	}
+
+	public void updatePassword(String password) {
+		this.pwd = password;
+	}
+
+	public void withNameAndEmail(String name, String email) {
+		this.name = name;
+		this.email = email;
+	}
+
+	public static List<MemberDto> toList(List<Member> l){
+		List<MemberDto> list = new ArrayList<>();
+		for (Member member : l) {
+			list.add(MemberDto.from(member));
+		}
+		return list;
 	}
 }

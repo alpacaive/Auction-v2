@@ -1,10 +1,12 @@
 package alpacaive.auctionv2.coupon;
 
+import alpacaive.auctionv2.member.MemberDao;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Slf4j
+//@TestPropertySource(locations = "classpath:test-application.properties")
 class MemberCouponServiceTest {
     @Autowired
     private MemberCouponService memberCouponService;
@@ -20,6 +23,8 @@ class MemberCouponServiceTest {
     private MemberCouponDao memberCouponDao;
     @Autowired
     private CouponDao couponDao;
+    @Autowired
+    private MemberDao memberDao;
 
     @Test
     @Transactional
@@ -28,7 +33,7 @@ class MemberCouponServiceTest {
         List<Coupon> aaa = memberCouponService.findCouponByMemberId("aaa");
         assertNotNull(aaa);
         for (Coupon coupon : aaa) {
-            log.debug(coupon.getName());
+            log.info("list={}",coupon.toString());
         }
     }
 

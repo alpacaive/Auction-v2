@@ -3,123 +3,87 @@ package alpacaive.auctionv2.member;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import alpacaive.auctionv2.member.exception.MemberNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import alpacaive.auctionv2.card.Card;
 import alpacaive.auctionv2.card.CardDao;
-import alpacaive.auctionv2.card.CardDto;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class MemberService {
-	@Autowired
-	private MemberDao dao;
-	@Autowired
-	private CardDao cdao;
-
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private static final Logger log = LoggerFactory.getLogger(MemberService.class);
+	private final MemberDao dao;
+	private final CardDao cdao;
+	private final PasswordEncoder passwordEncoder;
 
 	// 추가
-	public MemberDto save(MemberDto dto) {
-		// dao.save() 반환값: 방금 추가/수정한 그 행을 검색해서 entity에 담아서 반환
-		Member u = dao.save(new Member(dto.getId(), passwordEncoder.encode(dto.getPwd()), dto.getName(), dto.getEmail(),
-				dto.getCardnum(), dto.getPoint(), dto.getRank(), dto.getExp(), dto.getType()));
-		return new MemberDto(u.getId(), u.getPwd(), u.getName(), u.getEmail(), u.getCardnum(), u.getPoint(),
-				u.getRank(), u.getExp(), u.getType());
+	public String save(MemberDto dto) {
+		Member entity = dto.toEntity();
+		String encode = passwordEncoder.encode(entity.getPwd());
+		entity.updatePassword(encode);
+		Member u = dao.save(entity);
+		return u.getId();
 	}
 
-	public void edit(MemberDto dto) {
-		Member u = dao.findById(dto.getId()).orElse(null);
-		u.setName(dto.getName());
-		u.setExp(dto.getExp());
-		u.setType(dto.getType());
-		u.setEmail(dto.getEmail());
-		u.setCardnum(dto.getCardnum());
-		u.setPoint(dto.getPoint());
-		u.setRank(dto.getRank());
-		dao.save(u);
+	/**
+	 * 내 정보 수정
+	 * 이름, email
+	 */
+	public void editByNameAndEmail(MemberDto dto) {
+		Member user = getUser(dto.getId()).toEntity();
+		user.withNameAndEmail(dto.getName(), dto.getEmail());
+		dao.save(user);
 	}
 
 	// id로 검색
 	public MemberDto getUser(String id) {
-		// dao.findById(pk): pk기준으로 검색
-		Member u = dao.findById(id).orElse(null);// orElse(null): 검색결과 없으면 널 반환
-		if (u == null) {
-			return null;
-		}
-		return new MemberDto(u.getId(), u.getPwd(), u.getName(), u.getEmail(), u.getCardnum(), u.getPoint(),
-				u.getRank(), u.getExp(), u.getType());
+		Member u = dao.findById(id).orElseThrow(()->new MemberNotFoundException("회원이 없습니다."));
+		return MemberDto.from(u);
 	}
 
 	// 전체검색: findAll()
-	public ArrayList<MemberDto> getAll() {
+	public List<MemberDto> getAll() {
 		List<Member> l = dao.findAll();
-		ArrayList<MemberDto> list = new ArrayList<>();
-		for (Member u : l) {
-			list.add(new MemberDto(u.getId(), u.getPwd(), u.getName(), u.getEmail(), u.getCardnum(), u.getPoint(),
-					u.getRank(), u.getExp(), u.getType()));
-		}
-		return list;
+		return Member.toList(l);
 	}
 
-	public ArrayList<MemberDto> getRank() {
+	// 상위 10명 순위
+	public List<MemberDto> getRank() {
 		List<Member> l = dao.findAllByOrderByExpDesc();
-		ArrayList<MemberDto> list = new ArrayList<>();
-		int cnt = 1;
-		for (Member u : l) {
-			if (cnt >= 11) {
-				break;
-			}
-			list.add(new MemberDto(u.getId(), u.getPwd(), u.getName(), u.getEmail(), u.getCardnum(), u.getPoint(),
-					u.getRank(), u.getExp(), u.getType()));
-			cnt++;
-		}
-		return list;
+		return Member.toList(l).subList(0, 10);
 	}
 
-	// id기준 삭제
+	// 삭제
 	public void delMember(String id) {
 		dao.deleteById(id);
 	}
 
-	// type을 검색
-	public ArrayList<MemberDto> getByType(String type) {
-		List<Member> l = dao.findByType(type);
-		ArrayList<MemberDto> list = new ArrayList<>();
-		for (Member u : l) {
-			list.add(new MemberDto(u.getId(), u.getPwd(), u.getName(), u.getEmail(), u.getCardnum(), u.getPoint(),
-					u.getRank(), u.getExp(), u.getType()));
-		}
-		return list;
-	}
-
-	public void exchage(String id, int point, double discount) {
-		MemberDto member = MemberDto.create(dao.findById(id).orElse(null));
-		CardDto card = CardDto.create(member.getCardnum());
-		int feepoint=member.getFee(point);
-		card.setPrice(card.getPrice()+feepoint);
-		if(member.getPoint()<point) {
-			return;
-		}
-		member.setPoint(member.getPoint()-point);
-		dao.save(Member.create(member));
-		cdao.save(Card.create(card));
+	// 환전 ✅
+	public void exchange(String id, int point) {
+		MemberDto member = getUser(id);
+		member.exchange(point);
+		dao.save(Member.from(member));
 	}
 	
 	public void getRanker(){
 		ArrayList<Member> l=dao.findAllByOrderByExpDesc();
 		ArrayList<MemberDto>list=new ArrayList<>();
-		MemberDto m1=MemberDto.create(l.get(0));
+		MemberDto m1=MemberDto.from(l.get(0));
 		m1.setPoint(m1.getPoint()+10000);     // 1등
-		MemberDto m2=MemberDto.create(l.get(1));
+		MemberDto m2=MemberDto.from(l.get(1));
 		m1.setPoint(m2.getPoint()+5000);   // 2등
-		MemberDto m3=MemberDto.create(l.get(2));
+		MemberDto m3=MemberDto.from(l.get(2));
 		m1.setPoint(m3.getPoint()+3000);   // 3등
 		return;
 	}
 
+	public boolean idCheck(String id) {
+		Member u = dao.findById(id).orElse(null);
+        return u == null;
+    }
 }

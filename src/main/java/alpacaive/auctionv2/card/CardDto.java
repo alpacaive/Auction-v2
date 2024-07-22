@@ -35,4 +35,8 @@ public class CardDto {
         this.price = price;
         this.type = type;
     }
+
+    public void updatePrice(int feePoint){
+        this.price += feePoint;
+    }
 }
