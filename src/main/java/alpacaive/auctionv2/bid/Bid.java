@@ -33,7 +33,7 @@ public class Bid {
 
     private int price;
     private Date bidtime;
-    
+
     public static Bid create(BidDto dto) {
     	return  Bid.builder()
     			.num(dto.getNum())

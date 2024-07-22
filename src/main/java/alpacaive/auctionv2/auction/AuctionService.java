@@ -213,7 +213,7 @@ public class AuctionService {
 			ArrayList<Bid> blist = bdao.findByParentOrderByNumDesc(a);
 			for (Bid bid : blist) {
 				Member buyer = bid.getBuyer();
-				buyer.setPoint(buyer.getPoint() + bid.getPrice());
+//				buyer.setPoint(buyer.getPoint() + bid.getPrice());
 				try {
 					mdao.save(buyer);
 				} catch (Exception e) {
@@ -223,7 +223,7 @@ public class AuctionService {
 		case NORMAL: {
 			blist = bdao.findByParentOrderByNumDesc(a);
 			Member buyer = blist.get(0).getBuyer();
-			buyer.setPoint(buyer.getPoint() + blist.get(0).getPrice());
+//			buyer.setPoint(buyer.getPoint() + blist.get(0).getPrice());
 			try {
 				mdao.save(buyer);
 			} catch (Exception e) {
@@ -234,7 +234,7 @@ public class AuctionService {
 			blist = bdao.findByParentOrderByNumDesc(a);
 			for (Bid bid : blist) {
 				Member buyer = bid.getBuyer();
-				buyer.setPoint(buyer.getPoint() + bid.getPrice());
+//				buyer.setPoint(buyer.getPoint() + bid.getPrice());
 				try {
 					mdao.save(buyer);
 				} catch (Exception e) {
@@ -297,7 +297,7 @@ public class AuctionService {
 		}
 		if(maxValue!=null) {
 			Member pbuyer = mdao.findById(maxValue.getBuyer().getId()).orElse(null);
-			pbuyer.setPoint(pbuyer.getPoint() + getPoint);
+//			pbuyer.setPoint(pbuyer.getPoint() + getPoint);
 			mdao.save(pbuyer);
 			Notification notification = Notification.create(pbuyer.getId(), auction.getTitle(), "입찰을 뺏겼습니다"); // 전 입찰자에게 알림
 			notificationRepository.save(notification); // redis 저장
@@ -307,7 +307,7 @@ public class AuctionService {
 		String bider=preBidsave(auction.getNum());
 		if(bider!=null) {
 			buyer=mdao.findById(bider).orElse(null);
-			buyer.setPoint(buyer.getPoint()-b.getPrice());
+//			buyer.setPoint(buyer.getPoint()-b.getPrice());
 			mdao.save(buyer);
 			auction = dao.findById(b.getParent()).orElse(null);
 			return auction.getMax();
@@ -326,7 +326,7 @@ public class AuctionService {
 		if (buyer.getPoint() < b.getPrice()) { // 일차자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
 			return -1;
 		}
-		buyer.setPoint(buyer.getPoint() - b.getPrice());
+//		buyer.setPoint(buyer.getPoint() - b.getPrice());
 		adto.setBcnt(auction.getBcnt() + 1);
 		if (b.getPrice() > adto.getMax()) {
 			adto.setMax(b.getPrice());
@@ -348,7 +348,7 @@ public class AuctionService {
 		if (buyer.getPoint() < b.getPrice()) { // 일차자의 보유 포인트 보다 입찰가가 더 클시 입찰 취소
 			return -1;
 		}
-		buyer.setPoint(buyer.getPoint() - b.getPrice());
+//		buyer.setPoint(buyer.getPoint() - b.getPrice());
 		adto.setBcnt(auction.getBcnt() + 1);
 		adto.setMax(adto.getMax() + b.getPrice());
 		bdao.save(Bid.create(dto));

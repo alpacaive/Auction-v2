@@ -28,7 +28,7 @@ public class AttendanceService {
             return 2;
         }
 
-        m.setPoint(m.getPoint() + 100);
+//        m.setPoint(m.getPoint() + 100);
         mdao.save(m);
 
         Attendance a1 = new Attendance();
