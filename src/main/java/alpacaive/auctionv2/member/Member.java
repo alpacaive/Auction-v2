@@ -94,14 +94,6 @@ public class Member implements Serializable {
 		this.cardnum = cardNum;
 	}
 
-	public static List<MemberDto> toList(List<Member> l){
-		List<MemberDto> list = new ArrayList<>();
-		for (Member member : l) {
-			list.add(MemberDto.from(member));
-		}
-		return list;
-	}
-
 	// 포인트 주는 메서드
 	public void givePoint(String id, int point) {
 		this.id = id;
@@ -122,4 +114,27 @@ public class Member implements Serializable {
 	public void addCardNum(Card card) {
 		this.cardnum = card;
 	}
+
+	// 포인트 충전
+	public void updatePoint(int point) {
+		this.point = point;
+	}
+
+	// 등급 조정
+	public void updateGrade() {
+		if(this.getExp()>=1400000){
+			this.grade ="Diamond";
+		}else if(this.getExp()>=400000){
+			this.grade = "Gold";
+		}else if(this.getExp()>=100000){
+			this.grade = "Silver";
+		}
+	}
+
+	// 경험치획
+	public void updateExp(int exp) {
+		this.exp = exp;
+	}
+
+
 }

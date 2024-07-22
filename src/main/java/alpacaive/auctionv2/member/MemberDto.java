@@ -2,29 +2,30 @@ package alpacaive.auctionv2.member;
 
 import alpacaive.auctionv2.card.Card;
 import alpacaive.auctionv2.card.CardDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToOne;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
+@Setter
 @ToString
+@NoArgsConstructor
 public class MemberDto {
-    private String id;
+    private  String id;
 
-    private String pwd;
-    private String name;
-    private String email;
-
-    @OneToOne(cascade = CascadeType.ALL)
+    private  String pwd;
+    private  String name;
+    private  String email;
     private Card cardnum;
 
     private int point;
-    private String grade;
-    private int exp;
-    private String type;
+    private  String grade;
+    private  int exp;
+    private  String type;
 
     public static MemberDto from(Member u) {
         return MemberDto.builder()
@@ -76,12 +77,17 @@ public class MemberDto {
                 .type(this.type)
                 .build();
     }
-
+    public static List<MemberDto> listOf(List<Member> l){
+        List<MemberDto> list = new ArrayList<>();
+        for (Member member : l) {
+            list.add(MemberDto.from(member));
+        }
+        return list;
+    }
     public void exchange(int point) {
         this.point -= point;
         CardDto card = CardDto.create(this.cardnum);
         card.updatePrice(getFee(point));
         this.cardnum = Card.create(card);
     }
-
 }

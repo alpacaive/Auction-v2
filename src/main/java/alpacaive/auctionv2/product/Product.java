@@ -8,7 +8,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
-@Setter
+
 @NoArgsConstructor
 @ToString
 public class Product {
@@ -21,7 +21,6 @@ public class Product {
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member seller;
-
     private String name;
     private String img1;
     private String img2;
