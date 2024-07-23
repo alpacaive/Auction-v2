@@ -12,6 +12,8 @@
 
 ## 서비스 소개
 
+![image](https://github.com/user-attachments/assets/61442e13-1e42-43a1-b42d-155aded6f81c)
+
 alItem은 경매를 웹 애플리케이션으로 구현한 서비스입니다.
 
 경매를 통해 여러 회원들이 원하는 물건을 사기위해 경쟁을 합니다.
