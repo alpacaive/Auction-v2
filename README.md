@@ -2,6 +2,7 @@
 
 
 ## 팀원소개
+<hr>
 
 김정빈(팀장) -> 경매, 입찰
 
@@ -10,10 +11,12 @@
 이대영 -> 경매, 입찰
 
 ## 기획 배경
+<hr>
 
 ![image](https://github.com/user-attachments/assets/61442e13-1e42-43a1-b42d-155aded6f81c)
 
 ## 서비스 소개
+<hr>
 
 alItem은 경매를 웹 애플리케이션으로 구현한 서비스입니다.
 
@@ -36,14 +39,17 @@ alItem은 경매를 웹 애플리케이션으로 구현한 서비스입니다.
 
 ## 기술 스택
 ### Backend
+<hr>
 
 ![image](https://github.com/user-attachments/assets/90fbc488-bf9c-43ca-b294-07ec95821490)
 
 ### Frontend
+<hr>
 
 ![image](https://github.com/user-attachments/assets/c0fb0e08-f648-433c-a3b5-c0ee915a0c52)
 
 ## 흐름도
+<hr>
 
 ![image](https://github.com/user-attachments/assets/e8f6fe79-80c1-4028-b29b-75b672c5e433)
 
