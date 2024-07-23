@@ -69,18 +69,12 @@ public class AuctionController {
 		Map map=new HashMap();
 		map.put("parent", b.getParent()); 
 		map.put("buyer", b.getBuyer());
-		int setMax=0;
-		switch(aservice.get(b.getParent()).getType()) {
-		case NORMAL:
-			setMax=aservice.normalBid(b);
-			break;
-		case BLIND:
-			setMax=aservice.blindBid(b);
-			break;
-		default:
-			setMax=aservice.eventBid(b);
-		}
-		if(setMax>0) {
+		int setMax = switch (aservice.get(b.getParent()).getType()) {
+            case NORMAL -> aservice.normalBid(b);
+            case BLIND -> aservice.blindBid(b);
+            default -> aservice.eventBid(b);
+        };
+        if(setMax>0) {
 		map.put("price", setMax);
 		}else if(setMax==-1){
 			map.put("msg", "need more point");

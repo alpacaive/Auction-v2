@@ -297,7 +297,8 @@ public class AuctionService {
 		}
 		if(maxValue!=null) {
 			Member pbuyer = mdao.findById(maxValue.getBuyer().getId()).orElse(null);
-//			pbuyer.setPoint(pbuyer.getPoint() + getPoint);
+            assert pbuyer != null;
+            pbuyer.updatePoint(pbuyer.getPoint() + getPoint);
 			mdao.save(pbuyer);
 			Notification notification = Notification.create(pbuyer.getId(), auction.getTitle(), "입찰을 뺏겼습니다"); // 전 입찰자에게 알림
 			notificationRepository.save(notification); // redis 저장
@@ -307,10 +308,12 @@ public class AuctionService {
 		String bider=preBidsave(auction.getNum());
 		if(bider!=null) {
 			buyer=mdao.findById(bider).orElse(null);
-//			buyer.setPoint(buyer.getPoint()-b.getPrice());
+            assert buyer != null;
+            buyer.updatePoint(buyer.getPoint()-b.getPrice());
 			mdao.save(buyer);
 			auction = dao.findById(b.getParent()).orElse(null);
-			return auction.getMax();
+            assert auction != null;
+            return auction.getMax();
 		}		
 		return 0;
 	}

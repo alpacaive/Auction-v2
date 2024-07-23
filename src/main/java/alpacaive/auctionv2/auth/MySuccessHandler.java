@@ -41,7 +41,7 @@ public class MySuccessHandler implements AuthenticationSuccessHandler {
 		//인증 후 클라이언트가 요청한 페이지로 이동
 		RequestCache requestCache=new HttpSessionRequestCache();
 		SavedRequest saveRequest=requestCache.getRequest(request, response);
-		String path=saveRequest.getRedirectUrl().split("8081")[1].split("&")[0];
+		String path=saveRequest.getRedirectUrl().split("8080")[1].split("&")[0];
 		if(path.startsWith("/auth/index_")) {
 			path="/auth/index_"+type;
 		}

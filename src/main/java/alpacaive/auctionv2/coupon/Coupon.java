@@ -18,8 +18,7 @@ import java.util.List;
 public class Coupon {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_cou")
-    @SequenceGenerator(name = "seq_cou", allocationSize = 1, sequenceName = "seq_cou")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     // ex) 10% 할인 쿠폰

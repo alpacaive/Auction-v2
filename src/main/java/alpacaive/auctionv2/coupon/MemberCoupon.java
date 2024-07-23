@@ -14,8 +14,7 @@ import org.springframework.security.core.parameters.P;
 @NoArgsConstructor
 public class MemberCoupon {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_mc")
-    @SequenceGenerator(name = "seq_mc", allocationSize = 1,sequenceName = "seq_mc")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

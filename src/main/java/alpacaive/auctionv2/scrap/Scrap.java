@@ -16,8 +16,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @ToString
 public class Scrap {
     @Id
-    @SequenceGenerator(name = "seq_scrap", sequenceName = "seq_scrap", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_scrap")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int num;
 
     @ManyToOne
