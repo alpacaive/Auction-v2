@@ -16,8 +16,7 @@ import java.time.LocalDate;
 @ToString
 public class Attendance {
     @Id
-    @SequenceGenerator(name = "seq_attendance", sequenceName = "seq_attendance", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_attendance")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int num;
 
     @ManyToOne

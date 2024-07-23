@@ -17,8 +17,7 @@ import java.util.Date;
 public class Bid {
 
     @Id
-    @SequenceGenerator(name = "seq_bid", sequenceName = "seq_bid", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_bid")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int num;
 
     @ManyToOne
