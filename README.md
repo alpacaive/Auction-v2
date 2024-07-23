@@ -32,7 +32,7 @@ alItem은 경매를 웹 애플리케이션으로 구현한 서비스입니다.
 
 
 ## 기술 스택
-
+<img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"> 
 ### Backend
 
 ### Frontend
