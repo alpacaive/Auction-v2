@@ -17,8 +17,7 @@ import java.util.Date;
 public class Report {
 
     @Id
-    @SequenceGenerator(name = "seq_gen", sequenceName = "seq_report", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_report")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int num;
 
     @ManyToOne

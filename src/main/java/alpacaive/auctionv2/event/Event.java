@@ -12,8 +12,7 @@ import java.util.Date;
 public class Event {
 
     @Id
-    @SequenceGenerator(name = "seq_gen", sequenceName = "seq_event", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_event")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int num;
 
     private String img;
