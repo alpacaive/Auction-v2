@@ -109,7 +109,7 @@
                         </tr>
                         <tr>
                             <td>등급</td>
-                            <td id="member-rank" th:text="${member.rank}"></td>
+                            <td id="member-rank" th:text="${member.grade}"></td>
                         </tr>
                         <tr>
                             <td>보유 Point</td>
@@ -117,10 +117,10 @@
                         </tr>
                         <tr>
                             <td>다음 등급까지 필요한 포인트</td>
-                            <td th:if="${member.rank.equals('Bronze')}" th:text="100000-${member.exp}"></td>
-                            <td th:if="${member.rank.equals('Silver')}" th:text="400000-${member.exp}"></td>
-                            <td th:if="${member.rank.equals('Gold')}" th:text="1400000-${member.exp}"></td>
-                            <td th:if="${member.rank.equals('Diamond')}">최고 등급입니다</td>
+                            <td th:if="${member.grade.equals('Bronze')}" th:text="100000-${member.exp}"></td>
+                            <td th:if="${member.grade.equals('Silver')}" th:text="400000-${member.exp}"></td>
+                            <td th:if="${member.grade.equals('Gold')}" th:text="1400000-${member.exp}"></td>
+                            <td th:if="${member.grade.equals('Diamond')}">최고 등급입니다</td>
                         </tr>
                     </table>
 
