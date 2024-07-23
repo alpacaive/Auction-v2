@@ -9,10 +9,11 @@
 
 이대영 -> 경매, 입찰
 
-
-## 서비스 소개
+## 기획 배경
 
 ![image](https://github.com/user-attachments/assets/61442e13-1e42-43a1-b42d-155aded6f81c)
+
+## 서비스 소개
 
 alItem은 경매를 웹 애플리케이션으로 구현한 서비스입니다.
 
@@ -35,8 +36,11 @@ alItem은 경매를 웹 애플리케이션으로 구현한 서비스입니다.
 
 ## 기술 스택
 ### Backend
-<img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"></img>
+
+![image](https://github.com/user-attachments/assets/3da9a2b6-6898-41e7-90fb-a5d1dc74501e)
+
 ### Frontend
+
 
 ### DB
 
