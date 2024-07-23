@@ -43,6 +43,11 @@ alItem은 경매를 웹 애플리케이션으로 구현한 서비스입니다.
 
 ![image](https://github.com/user-attachments/assets/c0fb0e08-f648-433c-a3b5-c0ee915a0c52)
 
+## ERD
+
+![Auction-v2-ERD](https://github.com/user-attachments/assets/f80ac47d-8fc8-4af0-b275-e450682d1bb1)
+
+
 ## 흐름도
 
 ![image](https://github.com/user-attachments/assets/e8f6fe79-80c1-4028-b29b-75b672c5e433)
