@@ -37,7 +37,7 @@ alItem은 경매를 웹 애플리케이션으로 구현한 서비스입니다.
 ## 기술 스택
 ### Backend
 
-![image](https://github.com/user-attachments/assets/0402dc0a-4cd1-441b-add8-47f1a92f1fab)
+![image](https://github.com/user-attachments/assets/90fbc488-bf9c-43ca-b294-07ec95821490)
 
 ### Frontend
 
