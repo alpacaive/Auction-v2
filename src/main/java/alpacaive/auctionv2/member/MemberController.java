@@ -204,8 +204,6 @@ public class MemberController {
 		return "member/exchange";
 	}
 
-
-
 	@ResponseBody
 	@GetMapping("/idcheck")
 	public Map<String, Boolean> idcheck(String id) {
@@ -214,6 +212,7 @@ public class MemberController {
 		map.put("flag", flag);
 		return map;
 	}
+
 	@PostMapping("/auth/member/exchange")
 	public String exchange(HttpSession session,int point, int coupon_id) {
 		String loginId = (String) session.getAttribute("loginId");
