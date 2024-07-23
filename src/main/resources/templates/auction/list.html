@@ -25,7 +25,6 @@
         $(document).ready(function () {
             $('input[name=categories]').click(function () {
                 let rcvSlct = $('input[name=categories]:checked').val();
-                alert(rcvSlct)
                 $.ajax({
                     url: '/all/ajaxcategories?categories=' + rcvSlct,
                     type: 'GET',
@@ -33,7 +32,6 @@
                     processData: false,
                     success: function (res) {		//응답 정상일때
                         let list = res.list;
-                        alert(list.length)
                         let txt = '';
                         txt += '<section id="auctionlist" class="product-store position-relative padding-large no-padding-top">';
                         txt += '<div class="container">';
@@ -80,7 +78,6 @@
                         $('#auctionlist').html(txt);
                     },
                     error: function () {
-                        alert("존나 에러");
                     }
                 });
             });

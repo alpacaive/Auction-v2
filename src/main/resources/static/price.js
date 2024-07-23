@@ -2,7 +2,7 @@
  * 
  */
 const stompClient = new StompJs.Client({
-    brokerURL: 'ws://localhost:8081/auth/auction'
+    brokerURL: 'ws://localhost:8080/auth/auction'
 });
 let flag=true;
 let time="";
@@ -12,7 +12,8 @@ stompClient.onConnect = (frame) => {
     stompClient.subscribe('/sub/bid', (max) => {
 		let response=JSON.parse(max.body);
 		if(response.parent == $('#num').val()){
-			if(response.buyer == buyer){
+			alert(response.parent)
+			if(response.buyer === buyer){
 				$('#bid').text('내가 입찰한 금액: ' + response.price);
 			}
 			if(response.msg != null ){

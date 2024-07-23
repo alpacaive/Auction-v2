@@ -201,7 +201,6 @@ public class MemberController {
 			return "member/card";
 		}
 			map.addAttribute("myCouponList",couponByMemberId);
-
 		return "member/exchange";
 	}
 
