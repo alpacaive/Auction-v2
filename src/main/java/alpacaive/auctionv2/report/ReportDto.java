@@ -23,7 +23,7 @@ public class ReportDto {
 
     private Auction auction;
 
-    private int read;
+    private int readNum;
 
     public static ReportDto create(Report r){
         return ReportDto.builder()
@@ -33,18 +33,18 @@ public class ReportDto {
                 .content(r.getContent())
                 .wdate(r.getWdate())
                 .auction(r.getAuction())
-                .read(r.getRead())
+                .readNum(r.getReadNum())
                 .build();
     }
 
     @Builder
-    public ReportDto(int num, Member member, int type, String content, Date wdate, Auction auction, int read) {
+    public ReportDto(int num, Member member, int type, String content, Date wdate, Auction auction, int readNum) {
         this.num = num;
         this.member = member;
         this.type = type;
         this.content = content;
         this.wdate = wdate;
         this.auction = auction;
-        this.read = read;
+        this.readNum = readNum;
     }
 }

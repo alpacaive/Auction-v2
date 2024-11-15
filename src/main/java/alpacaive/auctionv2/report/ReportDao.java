@@ -7,6 +7,6 @@ import java.util.ArrayList;
 
 @Repository
 public interface ReportDao extends JpaRepository<Report, Integer> {
-    ArrayList<Report> findByReadOrderByWdate(int read);
+    ArrayList<Report> findByReadNumOrderByWdate(int is_read);
     ArrayList<Report> findByTypeOrderByWdate(int type);
 }
