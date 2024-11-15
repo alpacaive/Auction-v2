@@ -37,7 +37,7 @@ public class Report {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Auction auction;
 
-    private int read;
+    private int readNum;
 
     @PrePersist
     public void setDate() {
@@ -52,19 +52,19 @@ public class Report {
                 .content(dto.getContent())
                 .wdate(dto.getWdate())
                 .auction(dto.getAuction())
-                .read(dto.getRead())
+                .readNum(dto.getReadNum())
                 .build();
             }
 
     @Builder
-    public Report(int num, Member member, int type, String content, Date wdate, Auction auction, int read) {
+    public Report(int num, Member member, int type, String content, Date wdate, Auction auction, int readNum) {
         this.num = num;
         this.member = member;
         this.type = type;
         this.content = content;
         this.wdate = wdate;
         this.auction = auction;
-        this.read = read;
+        this.readNum = readNum;
     }
 
 }

@@ -18,6 +18,9 @@ public class ReportService {
 
     public ReportDto findById(int num) {
         Report r = dao.findById(num).orElse(null);
+        if (r == null) {
+            return null;
+        }
         return ReportDto.create(r);
     }
     public ArrayList<ReportDto> findAll() {
@@ -38,7 +41,7 @@ public class ReportService {
         return r;
     }
     public ArrayList<ReportDto> findByCheck(int check){
-        ArrayList<Report> l = dao.findByReadOrderByWdate(check);
+        ArrayList<Report> l = dao.findByReadNumOrderByWdate(check);
         ArrayList<ReportDto> r = new ArrayList<>();
         for (Report r1 : l) {
             r.add(ReportDto.create(r1));
